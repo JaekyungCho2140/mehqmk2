@@ -1,0 +1,60 @@
+/* Dialog overlay & card */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.dialog-card {
+  width: 400px;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  padding: var(--spacing-xl);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.dialog-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-md) 0;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+/* Danger button */
+.btn--danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 100px;
+  padding: 0 var(--spacing-md);
+  border-radius: 6px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: #ef4444;
+  color: #ffffff;
+  transition: background 200ms ease;
+}
+
+.btn--danger:hover {
+  background: #dc2626;
+}

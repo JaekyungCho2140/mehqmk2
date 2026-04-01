@@ -28,6 +28,8 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.PROJECT_UPDATE, { id, ...fields }),
     delete: (id: string): Promise<void> => ipcRenderer.invoke(IPC_CHANNELS.PROJECT_DELETE, { id }),
     open: (id: string): Promise<Project> => ipcRenderer.invoke(IPC_CHANNELS.PROJECT_OPEN, { id }),
+    clone: (id: string, newName: string): Promise<Project> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT_CLONE, { id, newName }),
   },
 };
 

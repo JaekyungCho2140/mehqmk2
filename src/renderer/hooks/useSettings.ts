@@ -22,6 +22,7 @@ declare global {
         update: (id: string, fields: Partial<Project>) => Promise<Project>;
         delete: (id: string) => Promise<void>;
         open: (id: string) => Promise<Project>;
+        clone: (id: string, newName: string) => Promise<Project>;
       };
     };
   }

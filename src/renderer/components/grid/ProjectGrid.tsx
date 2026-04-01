@@ -4,6 +4,7 @@ import {
   AllCommunityModule,
   ModuleRegistry,
   type RowDoubleClickedEvent,
+  type RowClickedEvent,
   type CellContextMenuEvent,
 } from 'ag-grid-community';
 import type { Project } from '../../../shared/types/project';
@@ -21,6 +22,7 @@ interface ProjectGridProps {
   readonly searchText: string;
   readonly onDoubleClick: (project: Project) => void;
   readonly onContextMenu: (project: Project, x: number, y: number) => void;
+  readonly onRowClick?: (project: Project) => void;
 }
 
 export function ProjectGrid({
@@ -28,6 +30,7 @@ export function ProjectGrid({
   searchText,
   onDoubleClick,
   onContextMenu,
+  onRowClick,
 }: ProjectGridProps): React.ReactElement {
   const gridRef = useRef<AgGridReact<Project>>(null);
   const columnDefs = useMemo(() => createColumnDefs(), []);
@@ -65,6 +68,13 @@ export function ProjectGrid({
     [onDoubleClick],
   );
 
+  const handleRowClicked = useCallback(
+    (event: RowClickedEvent<Project>) => {
+      if (event.data && onRowClick) onRowClick(event.data);
+    },
+    [onRowClick],
+  );
+
   const handleCellContextMenu = useCallback(
     (event: CellContextMenuEvent<Project>) => {
       const mouseEvent = event.event as MouseEvent | undefined;
@@ -85,6 +95,7 @@ export function ProjectGrid({
         components={components}
         isExternalFilterPresent={isExternalFilterPresent}
         doesExternalFilterPass={doesExternalFilterPass}
+        onRowClicked={handleRowClicked}
         onRowDoubleClicked={handleRowDoubleClicked}
         onCellContextMenu={handleCellContextMenu}
         rowSelection={{ mode: 'singleRow' }}

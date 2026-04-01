@@ -13,6 +13,7 @@ export const IPC_CHANNELS = {
   PROJECT_UPDATE: 'project:update',
   PROJECT_DELETE: 'project:delete',
   PROJECT_OPEN: 'project:open',
+  PROJECT_CLONE: 'project:clone',
 } as const;
 
 export interface IpcRequestMap {
@@ -27,6 +28,7 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.PROJECT_UPDATE]: { id: string } & Partial<Project>;
   [IPC_CHANNELS.PROJECT_DELETE]: { id: string };
   [IPC_CHANNELS.PROJECT_OPEN]: { id: string };
+  [IPC_CHANNELS.PROJECT_CLONE]: { id: string; newName: string };
 }
 
 export interface IpcResponseMap {
@@ -41,6 +43,7 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.PROJECT_UPDATE]: Project;
   [IPC_CHANNELS.PROJECT_DELETE]: void;
   [IPC_CHANNELS.PROJECT_OPEN]: Project;
+  [IPC_CHANNELS.PROJECT_CLONE]: Project;
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;

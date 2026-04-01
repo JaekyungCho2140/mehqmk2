@@ -84,6 +84,7 @@ export function App(): React.ReactElement {
       projects={projects}
       onNewProject={() => setView({ name: 'new-project' })}
       onOpenProject={handleOpenProject}
+      onProjectChanged={reloadProjects}
     />
   );
 }

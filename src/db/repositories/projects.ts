@@ -87,4 +87,32 @@ export class ProjectRepository {
     const row = this.db.prepare('SELECT 1 FROM projects WHERE name = ?').get(name);
     return !!row;
   }
+
+  clone(id: string, newName: string, newDirectory: string, createdBy: string): Project {
+    const original = this.get(id);
+    if (!original) throw new Error('원본 프로젝트를 찾을 수 없습니다');
+
+    const newId = crypto.randomUUID();
+
+    this.db
+      .prepare(
+        `INSERT INTO projects (id, name, source_lang, target_lang, client, domain, subject, description, directory, deadline, status, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'not-started', ?)`,
+      )
+      .run(
+        newId,
+        newName,
+        original.source_lang,
+        original.target_lang,
+        original.client,
+        original.domain,
+        original.subject,
+        original.description,
+        newDirectory,
+        original.deadline,
+        createdBy,
+      );
+
+    return this.get(newId)!;
+  }
 }
