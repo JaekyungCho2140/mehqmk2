@@ -8,6 +8,7 @@ interface TipTapEditorProps {
   readonly segmentId: string;
   readonly disabled: boolean;
   readonly onUpdate: (html: string) => void;
+  readonly onKeyDown?: (e: KeyboardEvent) => boolean;
 }
 
 export function TipTapEditor({
@@ -15,10 +16,13 @@ export function TipTapEditor({
   segmentId,
   disabled,
   onUpdate,
+  onKeyDown,
 }: TipTapEditorProps): React.ReactElement {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
+  const onKeyDownRef = useRef(onKeyDown);
+  onKeyDownRef.current = onKeyDown;
 
   const editor = useEditor({
     extensions: createExtensions(),
@@ -57,6 +61,19 @@ export function TipTapEditor({
       editor.commands.focus('end');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
+
+  // TipTap DOM에 keydown 리스너 등록 (Tab 등 인터셉트)
+  useEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom;
+    const handler = (e: KeyboardEvent) => {
+      if (onKeyDownRef.current?.(e)) {
+        // 이벤트가 소비됨 — TipTap에 전달하지 않음
+      }
+    };
+    dom.addEventListener('keydown', handler);
+    return () => dom.removeEventListener('keydown', handler);
   }, [editor]);
 
   // 클린업

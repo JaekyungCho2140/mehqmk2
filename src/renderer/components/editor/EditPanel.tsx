@@ -5,9 +5,14 @@ import { SourceDisplay } from './SourceDisplay';
 interface EditPanelProps {
   readonly segment: Segment | null;
   readonly onTargetChange: (segmentId: string, newTarget: string) => void;
+  readonly onEditorKeyDown?: (e: KeyboardEvent) => boolean;
 }
 
-export function EditPanel({ segment, onTargetChange }: EditPanelProps): React.ReactElement {
+export function EditPanel({
+  segment,
+  onTargetChange,
+  onEditorKeyDown,
+}: EditPanelProps): React.ReactElement {
   if (!segment) {
     return (
       <div className="edit-panel edit-panel--empty" data-testid="edit-panel">
@@ -30,6 +35,7 @@ export function EditPanel({ segment, onTargetChange }: EditPanelProps): React.Re
           segmentId={segment.id}
           disabled={segment.locked}
           onUpdate={(html) => onTargetChange(segment.id, html)}
+          onKeyDown={onEditorKeyDown}
         />
       </div>
     </div>

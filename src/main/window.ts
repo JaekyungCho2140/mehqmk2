@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { BrowserWindow } from 'electron';
 import path from 'node:path';
 
 export function createMainWindow(): BrowserWindow {
@@ -23,8 +23,8 @@ export function createMainWindow(): BrowserWindow {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  // 개발 모드에서 DevTools 자동 열기
-  if (!app.isPackaged) {
+  // Forge dev server 실행 중일 때만 DevTools 열기
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.webContents.openDevTools();
   }
 

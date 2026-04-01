@@ -4,6 +4,7 @@ import { SAMPLE_SEGMENTS } from '../../../tests/fixtures/sample-segments';
 import { SegmentGrid } from '../components/editor/SegmentGrid';
 import { EditPanel } from '../components/editor/EditPanel';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import '../styles/editor.css';
 
 interface TranslationEditorProps {
@@ -39,8 +40,18 @@ export function TranslationEditor({
     );
   }, []);
 
+  const nav = useEditorNavigation({
+    segments,
+    activeSegmentId,
+    onNavigate: setActiveSegmentId,
+  });
+
   return (
-    <div className="translation-editor" data-testid="translation-editor">
+    <div
+      className="translation-editor"
+      data-testid="translation-editor"
+      onKeyDown={nav.handleGridKeyDown}
+    >
       <div className="editor-toolbar">
         <div className="editor-toolbar-left">
           <button className="back-btn" onClick={onBack} data-testid="editor-back-btn">
@@ -62,7 +73,11 @@ export function TranslationEditor({
         onSegmentSelect={handleSegmentSelect}
       />
 
-      <EditPanel segment={activeSegment} onTargetChange={handleTargetChange} />
+      <EditPanel
+        segment={activeSegment}
+        onTargetChange={handleTargetChange}
+        onEditorKeyDown={nav.handleEditorKeyDown}
+      />
 
       <div className="editor-statusbar" data-testid="editor-statusbar" />
     </div>
