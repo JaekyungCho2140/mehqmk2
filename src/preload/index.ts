@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../shared/types/ipc';
 import type { SettingsKey, UserSettings } from '../shared/types/settings';
 import type { Project, CreateProjectInput } from '../shared/types/project';
+import type { Segment } from '../shared/types/segment';
 
 const electronAPI = {
   platform: process.platform,
@@ -30,6 +31,18 @@ const electronAPI = {
     open: (id: string): Promise<Project> => ipcRenderer.invoke(IPC_CHANNELS.PROJECT_OPEN, { id }),
     clone: (id: string, newName: string): Promise<Project> =>
       ipcRenderer.invoke(IPC_CHANNELS.PROJECT_CLONE, { id, newName }),
+  },
+  document: {
+    import: (projectId: string, filePath?: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.DOCUMENT_IMPORT, { projectId, filePath }),
+  },
+  segments: {
+    list: (documentId: string): Promise<Segment[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SEGMENTS_LIST, { documentId }),
+    update: (id: string, fields: Partial<Segment>): Promise<Segment> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SEGMENTS_UPDATE, { id, ...fields }),
+    bulkUpdate: (segments: Array<{ id: string } & Record<string, unknown>>): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SEGMENTS_BULK_UPDATE, { segments }),
   },
 };
 

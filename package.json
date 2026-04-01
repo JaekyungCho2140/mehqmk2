@@ -25,6 +25,7 @@
     "ag-grid-react": "^35.2.0",
     "better-sqlite3": "^12.8.0",
     "electron-squirrel-startup": "^1.0.1",
+    "fast-xml-parser": "^5.5.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

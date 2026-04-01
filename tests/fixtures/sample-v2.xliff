@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="ko">
+  <file id="f1" original="sample-v2.txt">
+    <unit id="u1">
+      <segment>
+        <source>Welcome</source>
+        <target>환영합니다</target>
+      </segment>
+    </unit>
+    <unit id="u2">
+      <segment>
+        <source>Goodbye</source>
+        <target></target>
+      </segment>
+    </unit>
+    <unit id="u3">
+      <segment>
+        <source>Thank you</source>
+        <target>감사합니다</target>
+      </segment>
+    </unit>
+    <unit id="u4">
+      <segment>
+        <source>Please wait</source>
+        <target></target>
+      </segment>
+    </unit>
+    <unit id="u5">
+      <segment>
+        <source>Loading...</source>
+        <target>로딩 중...</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>

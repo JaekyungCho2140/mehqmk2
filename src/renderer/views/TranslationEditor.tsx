@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Segment } from '../../shared/types/segment';
 import { SAMPLE_SEGMENTS } from '../../../tests/fixtures/sample-segments';
 import { SegmentGrid } from '../components/editor/SegmentGrid';
@@ -15,6 +15,7 @@ import '../styles/editor.css';
 
 interface TranslationEditorProps {
   readonly projectName: string;
+  readonly documentId?: string;
   readonly onBack: () => void;
 }
 
@@ -55,10 +56,55 @@ const STATUS_ORDER = [
 
 export function TranslationEditor({
   projectName,
+  documentId,
   onBack,
 }: TranslationEditorProps): React.ReactElement {
   const [segments, setSegments] = useState<Segment[]>(() => SAMPLE_SEGMENTS.map((s) => ({ ...s })));
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(segments[0]?.id ?? null);
+  const [dbLoaded, setDbLoaded] = useState(false);
+
+  // DB에서 세그먼트 로드 (documentId가 있을 때)
+  useEffect(() => {
+    if (!documentId || dbLoaded) return;
+    let cancelled = false;
+    window.electronAPI.segments.list(documentId).then((dbSegs) => {
+      if (cancelled || dbSegs.length === 0) return;
+      setSegments(dbSegs);
+      setActiveSegmentId(dbSegs[0]?.id ?? null);
+      setDbLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId, dbLoaded]);
+
+  // DB 세그먼트 저장 (세그먼트 전환 시)
+  const saveSegmentToDb = useCallback(
+    (seg: Segment) => {
+      if (!documentId) return;
+      window.electronAPI.segments.update(seg.id, {
+        target: seg.target,
+        status: seg.status,
+        locked: seg.locked,
+        modified: seg.modified,
+        confirmedBy: seg.confirmedBy,
+        confirmedAt: seg.confirmedAt,
+      });
+    },
+    [documentId],
+  );
+
+  // 세그먼트 전환 시 이전 세그먼트 저장
+  const handleSegmentSelect = useCallback(
+    (segment: Segment) => {
+      const current = segments.find((s) => s.id === activeSegmentId);
+      if (current && current.modified && documentId) {
+        saveSegmentToDb(current);
+      }
+      setActiveSegmentId(segment.id);
+    },
+    [segments, activeSegmentId, documentId, saveSegmentToDb],
+  );
   const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [filter, setFilter] = useState<FilterState>({
     sourceFilter: '',
@@ -109,10 +155,6 @@ export function TranslationEditor({
 
   const activeSegment = segments.find((s) => s.id === activeSegmentId) ?? null;
   const stats = useSegmentStats(segments, filteredSegments.length, activeSegmentId);
-
-  const handleSegmentSelect = useCallback((segment: Segment) => {
-    setActiveSegmentId(segment.id);
-  }, []);
 
   const handleTargetChange = useCallback((segmentId: string, newTarget: string) => {
     setSegments((prev) =>

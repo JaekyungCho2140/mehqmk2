@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="ko" datatype="plaintext" original="sample.txt">
+    <body>
+      <trans-unit id="1" resname="greeting">
+        <source>Hello, world!</source>
+        <target></target>
+        <note>Greeting message</note>
+      </trans-unit>
+      <trans-unit id="2" resname="file_menu">
+        <source>File</source>
+        <target>파일</target>
+      </trans-unit>
+      <trans-unit id="3" resname="edit_menu">
+        <source>Edit</source>
+        <target>편집</target>
+      </trans-unit>
+      <trans-unit id="4" resname="save_action">
+        <source>Save</source>
+        <target>저장</target>
+      </trans-unit>
+      <trans-unit id="5" resname="close_action">
+        <source>Close</source>
+        <target>닫기</target>
+      </trans-unit>
+      <trans-unit id="6" resname="new_project">
+        <source>New Project</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="7" resname="open_action">
+        <source>Open</source>
+        <target>열기</target>
+      </trans-unit>
+      <trans-unit id="8" resname="settings">
+        <source>Settings</source>
+        <target>설정</target>
+      </trans-unit>
+      <trans-unit id="9" resname="help">
+        <source>Help</source>
+        <target>도움말</target>
+      </trans-unit>
+      <trans-unit id="10" resname="about">
+        <source>About mehQ</source>
+        <target></target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

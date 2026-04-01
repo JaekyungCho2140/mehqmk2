@@ -44,6 +44,13 @@ export function ProjectHome({
     setToast('저장되었습니다');
   }, []);
 
+  const handleImportDocument = useCallback(async () => {
+    const result = await window.electronAPI.document.import(projectId);
+    if (result) {
+      setToast('문서가 임포트되었습니다');
+    }
+  }, [projectId]);
+
   if (!project) {
     return (
       <div className="loading-screen">
@@ -70,6 +77,7 @@ export function ProjectHome({
           <GeneralTab
             project={project}
             onOpenEditor={onOpenEditor ? () => onOpenEditor(project.id, project.name) : undefined}
+            onImportDocument={handleImportDocument}
           />
         )}
         {activeTab === 'reports' && <ReportsTab />}

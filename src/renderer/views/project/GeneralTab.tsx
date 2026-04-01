@@ -5,6 +5,7 @@ import { Button } from '../../components/Button';
 interface GeneralTabProps {
   readonly project: Project;
   readonly onOpenEditor?: () => void;
+  readonly onImportDocument?: () => void;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -21,7 +22,11 @@ function InfoCell({ label, value }: { readonly label: string; readonly value: st
   );
 }
 
-export function GeneralTab({ project, onOpenEditor }: GeneralTabProps): React.ReactElement {
+export function GeneralTab({
+  project,
+  onOpenEditor,
+  onImportDocument,
+}: GeneralTabProps): React.ReactElement {
   return (
     <div className="general-tab" data-testid="general-tab">
       <div className="general-header">
@@ -52,9 +57,16 @@ export function GeneralTab({ project, onOpenEditor }: GeneralTabProps): React.Re
       )}
 
       <div className="general-documents-section">
-        <h3 className="general-documents-title">Documents</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 className="general-documents-title">Documents</h3>
+          {onImportDocument && (
+            <Button onClick={onImportDocument} data-testid="import-document-btn">
+              Import Document
+            </Button>
+          )}
+        </div>
         <div className="general-documents-empty">
-          <p>문서가 없습니다. Phase 4에서 Import 기능이 추가됩니다.</p>
+          <p>문서가 없습니다. Import Document로 XLIFF 파일을 추가하세요.</p>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { UserSettings } from '../../shared/types/settings';
 import type { Project, CreateProjectInput } from '../../shared/types/project';
+import type { Segment } from '../../shared/types/segment';
 
 declare global {
   interface Window {
@@ -23,6 +24,14 @@ declare global {
         delete: (id: string) => Promise<void>;
         open: (id: string) => Promise<Project>;
         clone: (id: string, newName: string) => Promise<Project>;
+      };
+      document: {
+        import: (projectId: string, filePath?: string) => Promise<unknown>;
+      };
+      segments: {
+        list: (documentId: string) => Promise<Segment[]>;
+        update: (id: string, fields: Partial<Segment>) => Promise<Segment>;
+        bulkUpdate: (segments: Array<{ id: string } & Record<string, unknown>>) => Promise<void>;
       };
     };
   }
