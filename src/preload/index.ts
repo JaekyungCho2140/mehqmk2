@@ -7,8 +7,7 @@ const electronAPI = {
   settings: {
     get: (key: SettingsKey): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET, { key }),
-    getAll: (): Promise<UserSettings> =>
-      ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_ALL),
+    getAll: (): Promise<UserSettings> => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_ALL),
     set: (key: SettingsKey, value: unknown): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_SET, { key, value }),
     setBulk: (settings: Partial<UserSettings>): Promise<void> =>

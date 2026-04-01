@@ -12,7 +12,7 @@ type Step = 1 | 2;
 
 function StepIndicator({ currentStep }: { readonly currentStep: Step }): React.ReactElement {
   return (
-    <div className="step-indicator">
+    <div className="step-indicator" data-testid="wizard-step-indicator">
       {([1, 2] as const).map((step, i) => (
         <div key={step} style={{ display: 'flex', alignItems: 'center' }}>
           {i > 0 && <div className="step-line" />}
@@ -100,12 +100,12 @@ export function WelcomeWizard({
         handleBack();
       }
     },
-    [currentStep, handleNext, handleBack, handleFinish]
+    [currentStep, handleNext, handleBack, handleFinish],
   );
 
   return (
     <div className="wizard-overlay" onKeyDown={handleKeyDown}>
-      <div className="wizard-card">
+      <div className="wizard-card" data-testid="wizard-container">
         <StepIndicator currentStep={currentStep} />
 
         {currentStep === 1 && (
@@ -119,16 +119,12 @@ export function WelcomeWizard({
           />
         )}
         {currentStep === 2 && (
-          <StepWorkDir
-            workDirectory={workDirectory}
-            onBrowse={handleBrowse}
-            error={dirError}
-          />
+          <StepWorkDir workDirectory={workDirectory} onBrowse={handleBrowse} error={dirError} />
         )}
 
         <div className="step-footer">
           {currentStep > 1 ? (
-            <Button variant="ghost" onClick={handleBack}>
+            <Button variant="ghost" onClick={handleBack} data-testid="wizard-back-btn">
               Back
             </Button>
           ) : (
@@ -139,11 +135,12 @@ export function WelcomeWizard({
               <Button
                 onClick={handleNext}
                 disabled={!userName.trim()}
+                data-testid="wizard-next-btn"
               >
                 Next
               </Button>
             ) : (
-              <Button onClick={handleFinish} disabled={saving}>
+              <Button onClick={handleFinish} disabled={saving} data-testid="wizard-finish-btn">
                 {saving ? 'Saving...' : 'Finish'}
               </Button>
             )}

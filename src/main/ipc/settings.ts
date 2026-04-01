@@ -7,12 +7,9 @@ import type Database from 'better-sqlite3';
 export function registerSettingsIpc(db: Database.Database): void {
   const repo = new SettingsRepository(db);
 
-  ipcMain.handle(
-    IPC_CHANNELS.SETTINGS_GET,
-    (_event, payload: { key: SettingsKey }) => {
-      return repo.get(payload.key);
-    }
-  );
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, (_event, payload: { key: SettingsKey }) => {
+    return repo.get(payload.key);
+  });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET_ALL, () => {
     return repo.getAll();
@@ -22,15 +19,12 @@ export function registerSettingsIpc(db: Database.Database): void {
     IPC_CHANNELS.SETTINGS_SET,
     (_event, payload: { key: SettingsKey; value: unknown }) => {
       repo.set(payload.key, payload.value);
-    }
+    },
   );
 
-  ipcMain.handle(
-    IPC_CHANNELS.SETTINGS_SET_BULK,
-    (_event, payload: Partial<UserSettings>) => {
-      repo.setBulk(payload);
-    }
-  );
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_SET_BULK, (_event, payload: Partial<UserSettings>) => {
+    repo.setBulk(payload);
+  });
 
   ipcMain.handle(
     IPC_CHANNELS.DIALOG_SELECT_DIRECTORY,
@@ -45,6 +39,6 @@ export function registerSettingsIpc(db: Database.Database): void {
         return null;
       }
       return result.filePaths[0];
-    }
+    },
   );
 }

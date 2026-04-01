@@ -20,7 +20,7 @@ export function App(): React.ReactElement {
 
   if (loading || wizardCompleted === null) {
     return (
-      <div className="loading-screen">
+      <div className="loading-screen" data-testid="loading-screen">
         <div className="spinner" />
       </div>
     );

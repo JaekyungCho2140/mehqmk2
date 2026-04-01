@@ -19,9 +19,9 @@ export function runMigrations(db: Database.Database): void {
     )
   `);
 
-  const lastVersion = db
-    .prepare('SELECT MAX(version) as version FROM _migrations')
-    .get() as { version: number | null };
+  const lastVersion = db.prepare('SELECT MAX(version) as version FROM _migrations').get() as {
+    version: number | null;
+  };
 
   const currentVersion = lastVersion?.version ?? 0;
 
@@ -32,7 +32,7 @@ export function runMigrations(db: Database.Database): void {
       migration.up(db);
       db.prepare('INSERT INTO _migrations (version, name) VALUES (?, ?)').run(
         migration.version,
-        migration.name
+        migration.name,
       );
     });
 

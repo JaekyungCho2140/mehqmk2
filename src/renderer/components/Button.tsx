@@ -9,10 +9,5 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps): React.ReactElement {
-  return (
-    <button
-      className={`btn btn--${variant} ${className}`}
-      {...props}
-    />
-  );
+  return <button className={`btn btn--${variant} ${className}`} {...props} />;
 }

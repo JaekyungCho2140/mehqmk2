@@ -1,7 +1,6 @@
 import type Database from 'better-sqlite3';
 import type { SettingsKey, UserSettings } from '../../shared/types/settings';
 import { DEFAULT_SETTINGS } from '../../shared/types/settings';
-import { app } from 'electron';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -24,9 +23,9 @@ export class SettingsRepository {
   }
 
   get(key: SettingsKey): unknown {
-    const row = this.db
-      .prepare('SELECT value FROM user_settings WHERE key = ?')
-      .get(key) as { value: string } | undefined;
+    const row = this.db.prepare('SELECT value FROM user_settings WHERE key = ?').get(key) as
+      | { value: string }
+      | undefined;
 
     if (!row) {
       const defaults = resolveDefaults();
@@ -37,9 +36,10 @@ export class SettingsRepository {
   }
 
   getAll(): UserSettings {
-    const rows = this.db
-      .prepare('SELECT key, value FROM user_settings')
-      .all() as Array<{ key: string; value: string }>;
+    const rows = this.db.prepare('SELECT key, value FROM user_settings').all() as Array<{
+      key: string;
+      value: string;
+    }>;
 
     const defaults = resolveDefaults();
     const stored: Record<string, unknown> = {};
@@ -62,7 +62,7 @@ export class SettingsRepository {
 
   setBulk(settings: Partial<UserSettings>): void {
     const upsert = this.db.prepare(
-      'INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)'
+      'INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)',
     );
 
     const runInTransaction = this.db.transaction(() => {

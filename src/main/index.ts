@@ -8,6 +8,7 @@ import { registerAllIpc } from './ipc/index';
 // electron-squirrel-startup는 Windows 전용 — macOS에서는 스킵
 if (process.platform === 'win32') {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     if (require('electron-squirrel-startup')) {
       app.quit();
     }

@@ -23,11 +23,7 @@ export function TextInput({
           {label}
         </label>
       )}
-      <input
-        id={inputId}
-        className={`text-input ${error ? 'text-input--error' : ''}`}
-        {...props}
-      />
+      <input id={inputId} className={`text-input ${error ? 'text-input--error' : ''}`} {...props} />
       {error && <span className="text-input-error">{error}</span>}
       {hint && !error && <span className="text-input-hint">{hint}</span>}
     </div>

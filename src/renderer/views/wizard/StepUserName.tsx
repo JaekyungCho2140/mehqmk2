@@ -14,9 +14,7 @@ export function StepUserName({
   return (
     <div className="step-content">
       <h2 className="step-title">Welcome to mehQ</h2>
-      <p className="step-subtitle">
-        번역 작업을 시작하기 전에 기본 설정을 완료해주세요.
-      </p>
+      <p className="step-subtitle">번역 작업을 시작하기 전에 기본 설정을 완료해주세요.</p>
       <div className="step-body">
         <TextInput
           label="사용자 이름"
@@ -27,6 +25,7 @@ export function StepUserName({
           error={error}
           hint="이 이름은 번역 메모리와 변경 이력에 기록됩니다."
           autoFocus
+          data-testid="step-username-input"
         />
       </div>
     </div>
