@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { UserSettings } from '../../shared/types/settings';
+import type { Project, CreateProjectInput } from '../../shared/types/project';
 
 declare global {
   interface Window {
@@ -13,6 +14,14 @@ declare global {
       };
       dialog: {
         selectDirectory: (options?: { defaultPath?: string }) => Promise<string | null>;
+      };
+      project: {
+        list: () => Promise<Project[]>;
+        get: (id: string) => Promise<Project | null>;
+        create: (input: CreateProjectInput) => Promise<Project>;
+        update: (id: string, fields: Partial<Project>) => Promise<Project>;
+        delete: (id: string) => Promise<void>;
+        open: (id: string) => Promise<Project>;
       };
     };
   }

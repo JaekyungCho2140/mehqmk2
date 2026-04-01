@@ -1,5 +1,6 @@
 import type Database from 'better-sqlite3';
 import { migration001Init } from './001-init';
+import { migration002Projects } from './002-projects';
 
 export interface Migration {
   readonly version: number;
@@ -7,7 +8,7 @@ export interface Migration {
   readonly up: (db: Database.Database) => void;
 }
 
-const migrations: readonly Migration[] = [migration001Init];
+const migrations: readonly Migration[] = [migration001Init, migration002Projects];
 
 export function runMigrations(db: Database.Database): void {
   // 마이그레이션 메타 테이블 생성
