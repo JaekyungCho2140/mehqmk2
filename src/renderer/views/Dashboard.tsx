@@ -1,18 +1,61 @@
-import { Button } from '../components/Button';
+import { useState, useCallback } from 'react';
 import type { Project } from '../../shared/types/project';
+import { ProjectGrid } from '../components/grid/ProjectGrid';
+import { SearchFilter } from '../components/SearchFilter';
+
+interface ContextMenuState {
+  readonly project: Project;
+  readonly x: number;
+  readonly y: number;
+}
 
 interface DashboardProps {
   readonly projects: Project[];
   readonly onNewProject: () => void;
+  readonly onOpenProject: (project: Project) => void;
 }
 
-export function Dashboard({ projects, onNewProject }: DashboardProps): React.ReactElement {
+export function Dashboard({
+  projects,
+  onNewProject,
+  onOpenProject,
+}: DashboardProps): React.ReactElement {
+  const [searchText, setSearchText] = useState('');
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+
+  const handleDoubleClick = useCallback(
+    (project: Project) => {
+      onOpenProject(project);
+    },
+    [onOpenProject],
+  );
+
+  const handleContextMenu = useCallback((project: Project, x: number, y: number) => {
+    setContextMenu({ project, x, y });
+  }, []);
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   return (
     <div className="dashboard" data-testid="dashboard-container">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title" data-testid="dashboard-title">
-          mehQ Dashboard
+      <div className="dashboard-toolbar">
+        <h1 className="dashboard-logo" data-testid="dashboard-title">
+          mehQ
         </h1>
+        <div className="dashboard-toolbar-center">
+          <SearchFilter onSearch={setSearchText} />
+        </div>
+        <div className="dashboard-toolbar-right">
+          <button
+            className="btn--toolbar"
+            onClick={onNewProject}
+            data-testid="dashboard-new-project-btn"
+          >
+            + New Project
+          </button>
+        </div>
       </div>
 
       {projects.length === 0 ? (
@@ -22,28 +65,37 @@ export function Dashboard({ projects, onNewProject }: DashboardProps): React.Rea
           </p>
         </div>
       ) : (
-        <div className="dashboard-project-list" data-testid="dashboard-project-list">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="dashboard-project-item"
-              data-testid="dashboard-project-item"
-            >
-              <span className="project-item-name">{project.name}</span>
-              <span className="project-item-langs">
-                {project.source_lang} → {project.target_lang}
-              </span>
-              <span className="project-item-status">{project.status}</span>
-            </div>
-          ))}
-        </div>
+        <ProjectGrid
+          projects={projects}
+          searchText={searchText}
+          onDoubleClick={handleDoubleClick}
+          onContextMenu={handleContextMenu}
+        />
       )}
 
-      <div className="dashboard-footer">
-        <Button onClick={onNewProject} data-testid="dashboard-new-project-btn">
-          + New Project
-        </Button>
-      </div>
+      {contextMenu && (
+        <div className="context-menu-overlay" onClick={closeContextMenu}>
+          <div
+            className="context-menu"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+            data-testid="context-menu"
+          >
+            <div
+              className="context-menu-item"
+              onClick={() => {
+                onOpenProject(contextMenu.project);
+                closeContextMenu();
+              }}
+            >
+              Open
+            </div>
+            <div className="context-menu-item context-menu-item--disabled">Clone</div>
+            <div className="context-menu-item context-menu-item--disabled">Delete</div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item context-menu-item--disabled">Properties</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
