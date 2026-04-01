@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { Button } from '../components/Button';
 import { TextInput } from '../components/TextInput';
 import { LanguageSelect } from '../components/LanguageSelect';
+import { ProjectDocuments } from './wizard/ProjectDocuments';
+import type { FileEntry } from '../components/FileDropZone';
 import type { CreateProjectInput } from '../../shared/types/project';
 import '../styles/project-wizard.css';
 
@@ -10,10 +12,13 @@ interface NewProjectWizardProps {
   readonly onCancel: () => void;
 }
 
+type Step = 'details' | 'documents';
+
 export function NewProjectWizard({
   onComplete,
   onCancel,
 }: NewProjectWizardProps): React.ReactElement {
+  const [step, setStep] = useState<Step>('details');
   const [name, setName] = useState('');
   const [sourceLang, setSourceLang] = useState('');
   const [targetLang, setTargetLang] = useState('');
@@ -22,6 +27,7 @@ export function NewProjectWizard({
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [files, setFiles] = useState<FileEntry[]>([]);
 
   const [nameError, setNameError] = useState('');
   const [sourceLangError, setSourceLangError] = useState('');
@@ -29,25 +35,22 @@ export function NewProjectWizard({
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const canFinish = name.trim() && sourceLang && targetLang;
+  const canProceed = name.trim() && sourceLang && targetLang;
 
-  const validate = useCallback((): boolean => {
+  const validateDetails = useCallback((): boolean => {
     let valid = true;
-
     if (!name.trim()) {
       setNameError('프로젝트 이름을 입력해주세요');
       valid = false;
     } else {
       setNameError('');
     }
-
     if (!sourceLang) {
       setSourceLangError('소스 언어를 선택해주세요');
       valid = false;
     } else {
       setSourceLangError('');
     }
-
     if (!targetLang) {
       setTargetLangError('타겟 언어를 선택해주세요');
       valid = false;
@@ -57,13 +60,18 @@ export function NewProjectWizard({
     } else {
       setTargetLangError('');
     }
-
     return valid;
   }, [name, sourceLang, targetLang]);
 
-  const handleFinish = useCallback(async () => {
-    if (!validate()) return;
+  const handleNext = useCallback(() => {
+    if (validateDetails()) setStep('documents');
+  }, [validateDetails]);
 
+  const handleBack = useCallback(() => {
+    setStep('details');
+  }, []);
+
+  const handleFinish = useCallback(async () => {
     setSaving(true);
     setFormError('');
 
@@ -79,11 +87,19 @@ export function NewProjectWizard({
     };
 
     try {
-      await window.electronAPI.project.create(input);
+      const project = await window.electronAPI.project.create(input);
+
+      // 지원되는 파일만 Import
+      const supportedFiles = files.filter((f) => f.supported);
+      for (const file of supportedFiles) {
+        await window.electronAPI.document.import(project.id, file.path);
+      }
+
       onComplete();
     } catch (err) {
       const message = err instanceof Error ? err.message : '프로젝트 생성에 실패했습니다';
       if (message.includes('이미 존재')) {
+        setStep('details');
         setNameError(message);
       } else {
         setFormError(message);
@@ -99,7 +115,7 @@ export function NewProjectWizard({
     subject,
     description,
     deadline,
-    validate,
+    files,
     onComplete,
   ]);
 
@@ -108,112 +124,123 @@ export function NewProjectWizard({
   return (
     <div className="new-project-wizard" data-testid="new-project-wizard">
       <div className="new-project-header">
-        <h2>New Project</h2>
+        <h2>New Project — {step === 'details' ? 'Details' : 'Documents'}</h2>
         <Button variant="ghost" onClick={onCancel} data-testid="new-project-cancel-btn">
           Cancel
         </Button>
       </div>
 
       <div className="new-project-form-area">
-        <div className="new-project-form">
-          {formError && <div className="form-error-banner">{formError}</div>}
+        {step === 'details' ? (
+          <div className="new-project-form">
+            {formError && <div className="form-error-banner">{formError}</div>}
 
-          <TextInput
-            label="Name"
-            className="label-required-wrapper"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (e.target.value.trim()) setNameError('');
-            }}
-            placeholder="프로젝트 이름"
-            error={nameError}
-            autoFocus
-            data-testid="new-project-name-input"
-          />
-
-          <LanguageSelect
-            label="Source Language *"
-            value={sourceLang}
-            onChange={(code) => {
-              setSourceLang(code);
-              setSourceLangError('');
-            }}
-            error={sourceLangError}
-            data-testid="new-project-source-lang"
-          />
-
-          <LanguageSelect
-            label="Target Language *"
-            value={targetLang}
-            onChange={(code) => {
-              setTargetLang(code);
-              setTargetLangError('');
-            }}
-            error={targetLangError}
-            excludeCode={sourceLang}
-            data-testid="new-project-target-lang"
-          />
-
-          <hr className="form-divider" />
-
-          <TextInput
-            label="Client"
-            value={client}
-            onChange={(e) => setClient(e.target.value)}
-            placeholder="클라이언트"
-            data-testid="new-project-client-input"
-          />
-
-          <TextInput
-            label="Domain"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            placeholder="도메인"
-            data-testid="new-project-domain-input"
-          />
-
-          <TextInput
-            label="Subject"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="주제"
-            data-testid="new-project-subject-input"
-          />
-
-          <div className="text-input-wrapper">
-            <label className="text-input-label">Description</label>
-            <textarea
-              className="text-area"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="프로젝트 설명"
-              data-testid="new-project-description-input"
+            <TextInput
+              label="Name"
+              className="label-required-wrapper"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (e.target.value.trim()) setNameError('');
+              }}
+              placeholder="프로젝트 이름"
+              error={nameError}
+              autoFocus
+              data-testid="new-project-name-input"
             />
-          </div>
 
-          <div className="text-input-wrapper">
-            <label className="text-input-label">Deadline</label>
-            <input
-              type="date"
-              className="text-input"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              min={todayStr}
-              data-testid="new-project-deadline-input"
+            <LanguageSelect
+              label="Source Language *"
+              value={sourceLang}
+              onChange={(code) => {
+                setSourceLang(code);
+                setSourceLangError('');
+              }}
+              error={sourceLangError}
+              data-testid="new-project-source-lang"
             />
+
+            <LanguageSelect
+              label="Target Language *"
+              value={targetLang}
+              onChange={(code) => {
+                setTargetLang(code);
+                setTargetLangError('');
+              }}
+              error={targetLangError}
+              excludeCode={sourceLang}
+              data-testid="new-project-target-lang"
+            />
+
+            <hr className="form-divider" />
+
+            <TextInput
+              label="Client"
+              value={client}
+              onChange={(e) => setClient(e.target.value)}
+              placeholder="클라이언트"
+              data-testid="new-project-client-input"
+            />
+            <TextInput
+              label="Domain"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="도메인"
+              data-testid="new-project-domain-input"
+            />
+            <TextInput
+              label="Subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="주제"
+              data-testid="new-project-subject-input"
+            />
+            <div className="text-input-wrapper">
+              <label className="text-input-label">Description</label>
+              <textarea
+                className="text-area"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="프로젝트 설명"
+                data-testid="new-project-description-input"
+              />
+            </div>
+            <div className="text-input-wrapper">
+              <label className="text-input-label">Deadline</label>
+              <input
+                type="date"
+                className="text-input"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                min={todayStr}
+                data-testid="new-project-deadline-input"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="new-project-form">
+            <ProjectDocuments files={files} onFilesChange={setFiles} />
+          </div>
+        )}
       </div>
 
       <div className="new-project-footer">
-        <Button
-          onClick={handleFinish}
-          disabled={!canFinish || saving}
-          data-testid="new-project-finish-btn"
-        >
-          {saving ? 'Creating...' : 'Finish'}
-        </Button>
+        {step === 'documents' && (
+          <Button variant="ghost" onClick={handleBack} data-testid="new-project-back-btn">
+            Back
+          </Button>
+        )}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--spacing-sm)' }}>
+          {step === 'details' ? (
+            <Button onClick={handleNext} disabled={!canProceed} data-testid="new-project-next-btn">
+              Next
+            </Button>
+          ) : (
+            <Button onClick={handleFinish} disabled={saving} data-testid="new-project-finish-btn">
+              {saving ? 'Creating...' : 'Finish'}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
