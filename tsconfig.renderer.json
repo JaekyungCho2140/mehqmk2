@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "outDir": ".vite/build"
+  },
+  "include": ["src/renderer/**/*", "src/shared/**/*"]
+}
