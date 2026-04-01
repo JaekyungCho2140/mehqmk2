@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tmx version="1.4">
+  <header creationtool="mehQ" srclang="en" adminlang="en" datatype="plaintext"/>
+  <body>
+    <tu>
+      <tuv xml:lang="en"><seg>Hello</seg></tuv>
+      <tuv xml:lang="ko"><seg>안녕하세요</seg></tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en"><seg>World</seg></tuv>
+      <tuv xml:lang="ko"><seg>세계</seg></tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en"><seg>Translation Memory</seg></tuv>
+      <tuv xml:lang="ko"><seg>번역 메모리</seg></tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en"><seg>Save</seg></tuv>
+      <tuv xml:lang="ko"><seg>저장</seg></tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en"><seg>Cancel</seg></tuv>
+      <tuv xml:lang="ko"><seg></seg></tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en"><seg>Settings</seg></tuv>
+      <tuv xml:lang="ko"><seg>설정</seg></tuv>
+    </tu>
+  </body>
+</tmx>

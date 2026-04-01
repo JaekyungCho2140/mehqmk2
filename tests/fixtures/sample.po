@@ -1,0 +1,37 @@
+# Translation file for mehQ test
+# Copyright (C) 2026
+# This file is distributed under the same license as the mehQ package.
+#
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ko\n"
+
+# Main menu items
+msgid "File"
+msgstr "파일"
+
+msgid "Edit"
+msgstr "편집"
+
+msgid "View"
+msgstr "보기"
+
+msgid "Tools"
+msgstr "도구"
+
+# Empty translation
+msgid "New Window"
+msgstr ""
+
+msgid "Close Window"
+msgstr "창 닫기"
+
+# Plural form example
+msgid "%d file selected"
+msgid_plural "%d files selected"
+msgstr[0] "%d개 파일 선택됨"
+msgstr[1] "%d개 파일 선택됨"
+
+msgid "Help"
+msgstr "도움말"

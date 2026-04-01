@@ -3,7 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import type Database from 'better-sqlite3';
 import { IPC_CHANNELS } from '../../shared/types/ipc';
-import { parseXliff } from '../parsers/xliff';
+import { detectAndParse } from '../parsers/index';
 import { SegmentRepository } from '../../db/repositories/segments';
 
 export function registerDocumentsIpc(db: Database.Database): void {
@@ -19,7 +19,7 @@ export function registerDocumentsIpc(db: Database.Database): void {
         const win = BrowserWindow.getFocusedWindow();
         const result = await dialog.showOpenDialog(win!, {
           filters: [
-            { name: 'XLIFF', extensions: ['xliff', 'xlf'] },
+            { name: 'Bilingual Files', extensions: ['xliff', 'xlf', 'po', 'tmx', 'mqxliff'] },
             { name: 'All Files', extensions: ['*'] },
           ],
           properties: ['openFile'],
@@ -28,13 +28,14 @@ export function registerDocumentsIpc(db: Database.Database): void {
         filePath = result.filePaths[0];
       }
 
-      // 파서 실행
-      const parsed = parseXliff(filePath);
+      // 파서 레지스트리로 자동 감지 + 파싱
+      const parsed = detectAndParse(filePath);
 
       // documents 테이블에 삽입
       const docId = crypto.randomUUID();
       const fileName = path.basename(filePath);
-      const format = parsed.format === 'xliff-2.0' ? 'xliff-2.0' : 'xliff';
+      const ext = path.extname(filePath).toLowerCase().replace('.', '');
+      const format = ext === 'po' ? 'po' : ext === 'tmx' ? 'tmx' : parsed.format;
 
       db.prepare(
         `INSERT INTO documents (id, project_id, name, format, file_path, seg_count)
