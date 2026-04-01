@@ -9,6 +9,7 @@ interface TipTapEditorProps {
   readonly disabled: boolean;
   readonly onUpdate: (html: string) => void;
   readonly onKeyDown?: (e: KeyboardEvent) => boolean;
+  readonly onEditorReady?: (editor: ReturnType<typeof useEditor>) => void;
 }
 
 export function TipTapEditor({
@@ -17,6 +18,7 @@ export function TipTapEditor({
   disabled,
   onUpdate,
   onKeyDown,
+  onEditorReady,
 }: TipTapEditorProps): React.ReactElement {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const onUpdateRef = useRef(onUpdate);
@@ -55,10 +57,13 @@ export function TipTapEditor({
     }
   }, [disabled, editor]);
 
-  // 마운트 시 포커스
+  // 마운트 시 포커스 + editor 콜백
   useEffect(() => {
     if (editor && !disabled) {
       editor.commands.focus('end');
+    }
+    if (editor && onEditorReady) {
+      onEditorReady(editor);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
