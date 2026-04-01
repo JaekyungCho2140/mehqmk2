@@ -11,13 +11,13 @@
 - [x] `npm run make` → 바이너리 빌드 확인
 - [x] QA 검증 → docs/qa-reports/sprint-1-1-r1.md
 
-### Sprint 1-2: SQLite + IPC 통신 레이어
-- [ ] better-sqlite3 설치 + Electron 네이티브 리빌드
-- [ ] DB 마이그레이션 시스템 구축
-- [ ] user_settings 스키마 (001-init)
-- [ ] Typed IPC 패턴 (settings:get/set, dialog:selectDirectory)
-- [ ] preload contextBridge API
-- [ ] QA 검증
+### Sprint 1-2: SQLite + IPC 통신 레이어 ✅ QA PASS (17/17, R3)
+- [x] better-sqlite3 설치 + Electron 네이티브 리빌드
+- [x] DB 마이그레이션 시스템 구축
+- [x] user_settings 스키마 (001-init)
+- [x] Typed IPC 패턴 (settings:get/set, dialog:selectDirectory)
+- [x] preload contextBridge API
+- [x] QA 검증 → docs/qa-reports/sprint-1-2-r3.md
 
 ### Sprint 1-3: Welcome Wizard UI
 - [ ] App.tsx 라우팅 (wizard_completed 분기)
