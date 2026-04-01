@@ -1,11 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { Segment } from '../../shared/types/segment';
 import { SAMPLE_SEGMENTS } from '../../../tests/fixtures/sample-segments';
 import { SegmentGrid } from '../components/editor/SegmentGrid';
 import { EditPanel } from '../components/editor/EditPanel';
+import { StatusBar } from '../components/editor/StatusBar';
+import { FilterBar, type FilterState } from '../components/editor/FilterBar';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
+import { useSegmentStats } from '../hooks/useSegmentStats';
 import '../styles/editor.css';
 
 interface TranslationEditorProps {
@@ -13,14 +16,96 @@ interface TranslationEditorProps {
   readonly onBack: () => void;
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+function matchesFilter(
+  text: string,
+  filter: string,
+  caseSensitive: boolean,
+  useRegex: boolean,
+): boolean {
+  if (!filter) return true;
+  if (useRegex) {
+    try {
+      const flags = caseSensitive ? '' : 'i';
+      return new RegExp(filter, flags).test(text);
+    } catch {
+      return false;
+    }
+  }
+  if (caseSensitive) return text.includes(filter);
+  return text.toLowerCase().includes(filter.toLowerCase());
+}
+
+const STATUS_ORDER = [
+  'not-started',
+  'edited',
+  'pre-translated',
+  'assembled',
+  'confirmed',
+  'r1-confirmed',
+  'r2-confirmed',
+  'locked',
+  'rejected',
+];
+
 export function TranslationEditor({
   projectName,
   onBack,
 }: TranslationEditorProps): React.ReactElement {
   const [segments, setSegments] = useState<Segment[]>(() => SAMPLE_SEGMENTS.map((s) => ({ ...s })));
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(segments[0]?.id ?? null);
+  const [filter, setFilter] = useState<FilterState>({
+    sourceFilter: '',
+    targetFilter: '',
+    caseSensitive: false,
+    useRegex: false,
+    sortBy: 'none',
+    sortAsc: true,
+  });
+
+  // 필터링
+  const filteredSegments = useMemo(() => {
+    let result = segments.filter((s) => {
+      const sourceText = stripHtml(s.source);
+      const targetText = stripHtml(s.target);
+      return (
+        matchesFilter(sourceText, filter.sourceFilter, filter.caseSensitive, filter.useRegex) &&
+        matchesFilter(targetText, filter.targetFilter, filter.caseSensitive, filter.useRegex)
+      );
+    });
+
+    // 정렬
+    if (filter.sortBy !== 'none') {
+      result = [...result].sort((a, b) => {
+        let cmp = 0;
+        switch (filter.sortBy) {
+          case 'source-alpha':
+            cmp = stripHtml(a.source).localeCompare(stripHtml(b.source));
+            break;
+          case 'target-alpha':
+            cmp = stripHtml(a.target).localeCompare(stripHtml(b.target));
+            break;
+          case 'source-length':
+            cmp = stripHtml(a.source).length - stripHtml(b.source).length;
+            break;
+          case 'status':
+            cmp = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
+            break;
+        }
+        return filter.sortAsc ? cmp : -cmp;
+      });
+    }
+
+    return result;
+  }, [segments, filter]);
+
+  const isFiltered = !!(filter.sourceFilter || filter.targetFilter);
 
   const activeSegment = segments.find((s) => s.id === activeSegmentId) ?? null;
+  const stats = useSegmentStats(segments, filteredSegments.length, activeSegmentId);
 
   const handleSegmentSelect = useCallback((segment: Segment) => {
     setActiveSegmentId(segment.id);
@@ -42,7 +127,7 @@ export function TranslationEditor({
   }, []);
 
   const nav = useEditorNavigation({
-    segments,
+    segments: filteredSegments,
     activeSegmentId,
     onNavigate: setActiveSegmentId,
   });
@@ -50,12 +135,11 @@ export function TranslationEditor({
   const confirmation = useConfirmation({
     segments,
     activeSegmentId,
-    userName: 'TestUser', // Phase 4+에서 settings에서 가져옴
+    userName: 'TestUser',
     onSegmentsChange: setSegments,
     goToNext: nav.goToNext,
   });
 
-  // 키 이벤트 병합: confirmation 우선, 그 다음 navigation
   const handleEditorKeyDown = useCallback(
     (e: KeyboardEvent): boolean => {
       if (confirmation.handleEditorKeyDown(e)) return true;
@@ -85,8 +169,10 @@ export function TranslationEditor({
         </div>
       </div>
 
+      <FilterBar onFilterChange={setFilter} />
+
       <SegmentGrid
-        segments={segments}
+        segments={filteredSegments}
         activeSegmentId={activeSegmentId}
         onSegmentSelect={handleSegmentSelect}
       />
@@ -97,7 +183,7 @@ export function TranslationEditor({
         onEditorKeyDown={handleEditorKeyDown}
       />
 
-      <div className="editor-statusbar" data-testid="editor-statusbar" />
+      <StatusBar stats={stats} isFiltered={isFiltered} />
     </div>
   );
 }
