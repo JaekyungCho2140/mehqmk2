@@ -9,47 +9,47 @@ import type { Project } from '../shared/types/project';
 import './styles/components.css';
 import './styles/wizard.css';
 
-type View =
-  | { name: 'loading' }
-  | { name: 'welcome-wizard' }
-  | { name: 'dashboard' }
-  | { name: 'new-project' }
-  | { name: 'project-home'; project: Project };
+type AppView =
+  | { type: 'loading' }
+  | { type: 'wizard' }
+  | { type: 'dashboard' }
+  | { type: 'new-project' }
+  | { type: 'project-home'; projectId: string };
 
 export function App(): React.ReactElement {
   const { settings, loading: settingsLoading } = useSettings();
   const { projects, reload: reloadProjects } = useProjects();
-  const [view, setView] = useState<View>({ name: 'loading' });
+  const [view, setView] = useState<AppView>({ type: 'loading' });
 
   // settings 로드 후 초기 뷰 결정
-  if (view.name === 'loading' && !settingsLoading && settings) {
+  if (view.type === 'loading' && !settingsLoading && settings) {
     if (!settings.wizard_completed) {
-      setView({ name: 'welcome-wizard' });
+      setView({ type: 'wizard' });
     } else {
-      setView({ name: 'dashboard' });
+      setView({ type: 'dashboard' });
     }
   }
 
   const handleWelcomeComplete = useCallback(() => {
-    setView({ name: 'dashboard' });
+    setView({ type: 'dashboard' });
   }, []);
 
   const handleNewProjectComplete = useCallback(async () => {
     await reloadProjects();
-    setView({ name: 'dashboard' });
+    setView({ type: 'dashboard' });
   }, [reloadProjects]);
 
   const handleOpenProject = useCallback(async (project: Project) => {
-    const opened = await window.electronAPI.project.open(project.id);
-    setView({ name: 'project-home', project: opened });
+    await window.electronAPI.project.open(project.id);
+    setView({ type: 'project-home', projectId: project.id });
   }, []);
 
   const handleBackToDashboard = useCallback(async () => {
     await reloadProjects();
-    setView({ name: 'dashboard' });
+    setView({ type: 'dashboard' });
   }, [reloadProjects]);
 
-  if (view.name === 'loading' || settingsLoading) {
+  if (view.type === 'loading' || settingsLoading) {
     return (
       <div className="loading-screen" data-testid="loading-screen">
         <div className="spinner" />
@@ -57,7 +57,7 @@ export function App(): React.ReactElement {
     );
   }
 
-  if (view.name === 'welcome-wizard') {
+  if (view.type === 'wizard') {
     return (
       <WelcomeWizard
         defaultWorkDirectory={settings?.work_directory ?? ''}
@@ -66,23 +66,23 @@ export function App(): React.ReactElement {
     );
   }
 
-  if (view.name === 'new-project') {
+  if (view.type === 'new-project') {
     return (
       <NewProjectWizard
         onComplete={handleNewProjectComplete}
-        onCancel={() => setView({ name: 'dashboard' })}
+        onCancel={() => setView({ type: 'dashboard' })}
       />
     );
   }
 
-  if (view.name === 'project-home') {
-    return <ProjectHome project={view.project} onBack={handleBackToDashboard} />;
+  if (view.type === 'project-home') {
+    return <ProjectHome projectId={view.projectId} onBack={handleBackToDashboard} />;
   }
 
   return (
     <Dashboard
       projects={projects}
-      onNewProject={() => setView({ name: 'new-project' })}
+      onNewProject={() => setView({ type: 'new-project' })}
       onOpenProject={handleOpenProject}
       onProjectChanged={reloadProjects}
     />
