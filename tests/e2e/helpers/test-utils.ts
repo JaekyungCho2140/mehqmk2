@@ -50,3 +50,23 @@ export async function createProject(
   await page.click(SEL.NEW_PROJECT_FINISH_BTN);
   await page.waitForSelector(SEL.DASHBOARD_CONTAINER, { timeout: 5000 });
 }
+
+/**
+ * 에디터 진입 (Dashboard → Project Home → Editor)
+ * 사전 조건: Dashboard에 프로젝트가 1개 이상 있어야 함
+ */
+export async function openEditor(page: Page): Promise<void> {
+  // 프로젝트 더블클릭 → Project Home
+  await page.locator('.ag-row').first().dblclick();
+  await page.waitForSelector(SEL.PROJECT_HOME, { timeout: 10000 });
+
+  // Open in Editor
+  await page.click(SEL.OPEN_EDITOR_BTN);
+  await page.waitForSelector(SEL.TRANSLATION_EDITOR, { timeout: 10000 });
+
+  // AG Grid 행 로드 대기
+  await page.waitForSelector('.ag-row', { timeout: 10000 });
+
+  // TipTap 에디터 준비 대기
+  await page.waitForSelector(`${SEL.TIPTAP_EDITOR} .tiptap`, { timeout: 5000 });
+}

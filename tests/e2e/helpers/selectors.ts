@@ -63,6 +63,25 @@ export const SEL = {
   SETTINGS_SAVE_BTN: '[data-testid="settings-save-btn"]',
   TOAST: '[data-testid="toast"]',
 
+  // Editor
+  OPEN_EDITOR_BTN: '[data-testid="open-editor-btn"]',
+  TRANSLATION_EDITOR: '[data-testid="translation-editor"]',
+  EDITOR_BACK_BTN: '[data-testid="editor-back-btn"]',
+  SEGMENT_GRID: '[data-testid="segment-grid"]',
+  EDIT_PANEL: '[data-testid="edit-panel"]',
+  EDIT_PANEL_SOURCE: '[data-testid="edit-panel-source"]',
+  TIPTAP_EDITOR: '[data-testid="tiptap-editor"]',
+  EDITOR_STATUSBAR: '[data-testid="editor-statusbar"]',
+  FILTER_BAR: '[data-testid="filter-bar"]',
+  FILTER_SOURCE: '[data-testid="filter-source"]',
+  FILTER_TARGET: '[data-testid="filter-target"]',
+  FILTER_SORT_SELECT: '[data-testid="filter-sort-select"]',
+  TOOLBAR_BOLD: '[data-testid="toolbar-bold"]',
+  TOOLBAR_ITALIC: '[data-testid="toolbar-italic"]',
+  TOOLBAR_UNDERLINE: '[data-testid="toolbar-underline"]',
+  CHANGE_STATUS_DIALOG: '[data-testid="change-status-dialog"]',
+  CHANGE_STATUS_APPLY: '[data-testid="change-status-apply"]',
+
   // Loading
   LOADING_SCREEN: '[data-testid="loading-screen"]',
 } as const;
