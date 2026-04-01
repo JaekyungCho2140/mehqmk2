@@ -5,6 +5,7 @@ import { SegmentGrid } from '../components/editor/SegmentGrid';
 import { EditPanel } from '../components/editor/EditPanel';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
+import { useConfirmation } from '../hooks/useConfirmation';
 import '../styles/editor.css';
 
 interface TranslationEditorProps {
@@ -46,6 +47,23 @@ export function TranslationEditor({
     onNavigate: setActiveSegmentId,
   });
 
+  const confirmation = useConfirmation({
+    segments,
+    activeSegmentId,
+    userName: 'TestUser', // Phase 4+에서 settings에서 가져옴
+    onSegmentsChange: setSegments,
+    goToNext: nav.goToNext,
+  });
+
+  // 키 이벤트 병합: confirmation 우선, 그 다음 navigation
+  const handleEditorKeyDown = useCallback(
+    (e: KeyboardEvent): boolean => {
+      if (confirmation.handleEditorKeyDown(e)) return true;
+      return nav.handleEditorKeyDown(e);
+    },
+    [confirmation, nav],
+  );
+
   return (
     <div
       className="translation-editor"
@@ -76,7 +94,7 @@ export function TranslationEditor({
       <EditPanel
         segment={activeSegment}
         onTargetChange={handleTargetChange}
-        onEditorKeyDown={nav.handleEditorKeyDown}
+        onEditorKeyDown={handleEditorKeyDown}
       />
 
       <div className="editor-statusbar" data-testid="editor-statusbar" />
