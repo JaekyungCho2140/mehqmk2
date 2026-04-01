@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 
 export function createMainWindow(): BrowserWindow {
@@ -24,7 +24,7 @@ export function createMainWindow(): BrowserWindow {
   }
 
   // 개발 모드에서 DevTools 자동 열기
-  if (process.env.NODE_ENV !== 'production') {
+  if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
 

@@ -1,0 +1,49 @@
+/* TipTap Editor */
+.tiptap-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  cursor: text;
+}
+
+.tiptap-wrapper--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tiptap-wrapper .tiptap {
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: var(--font-family-ui);
+  color: var(--color-text-primary);
+  min-height: 60px;
+  outline: none;
+}
+
+.tiptap-wrapper .tiptap:focus {
+  border-left: 2px solid var(--color-accent-primary);
+  padding-left: 10px;
+}
+
+/* Placeholder */
+.tiptap-wrapper .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-muted);
+  font-style: italic;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* Source Display */
+.source-display {
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: var(--font-family-ui);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  user-select: text;
+  flex: 1;
+  overflow-y: auto;
+}

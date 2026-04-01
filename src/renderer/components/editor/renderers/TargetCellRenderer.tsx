@@ -1,7 +1,12 @@
 import type { CustomCellRendererProps } from 'ag-grid-react';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
 export function TargetCellRenderer(props: CustomCellRendererProps): React.ReactElement {
-  const text = props.value as string;
+  const raw = props.value as string;
+  const text = stripHtml(raw ?? '');
   const isActive = props.node.isSelected();
 
   return (
