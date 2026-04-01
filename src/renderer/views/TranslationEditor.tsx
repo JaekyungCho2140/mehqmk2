@@ -6,8 +6,10 @@ import { EditPanel } from '../components/editor/EditPanel';
 import { StatusBar } from '../components/editor/StatusBar';
 import { FilterBar, type FilterState } from '../components/editor/FilterBar';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { ChangeStatusDialog } from '../components/editor/ChangeStatusDialog';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
+import { useSegmentStatus, type ChangeStatusOptions } from '../hooks/useSegmentStatus';
 import { useSegmentStats } from '../hooks/useSegmentStats';
 import '../styles/editor.css';
 
@@ -57,6 +59,7 @@ export function TranslationEditor({
 }: TranslationEditorProps): React.ReactElement {
   const [segments, setSegments] = useState<Segment[]>(() => SAMPLE_SEGMENTS.map((s) => ({ ...s })));
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(segments[0]?.id ?? null);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [filter, setFilter] = useState<FilterState>({
     sourceFilter: '',
     targetFilter: '',
@@ -140,12 +143,28 @@ export function TranslationEditor({
     goToNext: nav.goToNext,
   });
 
+  const segStatus = useSegmentStatus({
+    segments,
+    activeSegmentId,
+    userName: 'TestUser',
+    onSegmentsChange: setSegments,
+  });
+
+  const handleChangeStatusApply = useCallback(
+    (options: ChangeStatusOptions) => {
+      segStatus.changeStatus(options);
+      setShowChangeStatus(false);
+    },
+    [segStatus],
+  );
+
   const handleEditorKeyDown = useCallback(
     (e: KeyboardEvent): boolean => {
+      if (segStatus.handleKeyDown(e)) return true;
       if (confirmation.handleEditorKeyDown(e)) return true;
       return nav.handleEditorKeyDown(e);
     },
-    [confirmation, nav],
+    [segStatus, confirmation, nav],
   );
 
   return (
@@ -175,6 +194,7 @@ export function TranslationEditor({
         segments={filteredSegments}
         activeSegmentId={activeSegmentId}
         onSegmentSelect={handleSegmentSelect}
+        onStatusBoxDoubleClick={() => setShowChangeStatus(true)}
       />
 
       <EditPanel
@@ -184,6 +204,13 @@ export function TranslationEditor({
       />
 
       <StatusBar stats={stats} isFiltered={isFiltered} />
+
+      {showChangeStatus && (
+        <ChangeStatusDialog
+          onApply={handleChangeStatusApply}
+          onCancel={() => setShowChangeStatus(false)}
+        />
+      )}
     </div>
   );
 }

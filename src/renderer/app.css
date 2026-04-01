@@ -30,6 +30,19 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+
+  /* 세그먼트 상태 색상 */
+  --color-segment-not-started: #d1d5db;
+  --color-segment-edited: #f9a8d4;
+  --color-segment-pre-translated: #93c5fd;
+  --color-segment-assembled: #c4b5fd;
+  --color-segment-confirmed: #86efac;
+  --color-segment-r1-confirmed: #4ade80;
+  --color-segment-r2-confirmed: #22c55e;
+  --color-segment-locked: #9ca3af;
+  --color-segment-rejected: #fca5a5;
+  --color-segment-locked-bg: #f3f4f6;
+  --color-segment-active-bg: #eff6ff;
 }
 
 * {

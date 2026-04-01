@@ -1,6 +1,11 @@
 import { useMemo, useCallback, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { AllCommunityModule, ModuleRegistry, type RowClickedEvent } from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ModuleRegistry,
+  type RowClickedEvent,
+  type CellDoubleClickedEvent,
+} from 'ag-grid-community';
 import type { Segment } from '../../../shared/types/segment';
 import { createSegmentColumnDefs } from './columns';
 import { SegmentNumberRenderer } from './renderers/SegmentNumberRenderer';
@@ -14,12 +19,14 @@ interface SegmentGridProps {
   readonly segments: Segment[];
   readonly activeSegmentId: string | null;
   readonly onSegmentSelect: (segment: Segment) => void;
+  readonly onStatusBoxDoubleClick?: () => void;
 }
 
 export function SegmentGrid({
   segments,
   activeSegmentId,
   onSegmentSelect,
+  onStatusBoxDoubleClick,
 }: SegmentGridProps): React.ReactElement {
   const gridRef = useRef<AgGridReact<Segment>>(null);
   const columnDefs = useMemo(() => createSegmentColumnDefs(), []);
@@ -41,6 +48,15 @@ export function SegmentGrid({
     [onSegmentSelect],
   );
 
+  const handleCellDoubleClicked = useCallback(
+    (event: CellDoubleClickedEvent<Segment>) => {
+      if (event.colDef.field === 'status' && onStatusBoxDoubleClick) {
+        onStatusBoxDoubleClick();
+      }
+    },
+    [onStatusBoxDoubleClick],
+  );
+
   const getRowClass = useCallback(
     (params: { data: Segment | undefined }) => {
       if (params.data && params.data.id === activeSegmentId) {
@@ -59,6 +75,7 @@ export function SegmentGrid({
         columnDefs={columnDefs}
         components={components}
         onRowClicked={handleRowClicked}
+        onCellDoubleClicked={handleCellDoubleClicked}
         rowSelection={{ mode: 'singleRow' }}
         suppressCellFocus
         animateRows={false}
