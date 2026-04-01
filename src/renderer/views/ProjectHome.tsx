@@ -17,9 +17,14 @@ const TABS = [
 interface ProjectHomeProps {
   readonly projectId: string;
   readonly onBack: () => void;
+  readonly onOpenEditor?: (projectId: string, projectName: string) => void;
 }
 
-export function ProjectHome({ projectId, onBack }: ProjectHomeProps): React.ReactElement {
+export function ProjectHome({
+  projectId,
+  onBack,
+  onOpenEditor,
+}: ProjectHomeProps): React.ReactElement {
   const [project, setProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState('general');
   const [toast, setToast] = useState<string | null>(null);
@@ -61,7 +66,12 @@ export function ProjectHome({ projectId, onBack }: ProjectHomeProps): React.Reac
       <TabBar tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="project-home-content">
-        {activeTab === 'general' && <GeneralTab project={project} />}
+        {activeTab === 'general' && (
+          <GeneralTab
+            project={project}
+            onOpenEditor={onOpenEditor ? () => onOpenEditor(project.id, project.name) : undefined}
+          />
+        )}
         {activeTab === 'reports' && <ReportsTab />}
         {activeTab === 'settings' && <SettingsTab project={project} onSave={handleSettingsSave} />}
       </div>

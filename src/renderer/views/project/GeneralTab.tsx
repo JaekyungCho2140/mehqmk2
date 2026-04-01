@@ -1,8 +1,10 @@
 import type { Project } from '../../../shared/types/project';
 import { StatusIcon } from '../../components/StatusIcon';
+import { Button } from '../../components/Button';
 
 interface GeneralTabProps {
   readonly project: Project;
+  readonly onOpenEditor?: () => void;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -19,7 +21,7 @@ function InfoCell({ label, value }: { readonly label: string; readonly value: st
   );
 }
 
-export function GeneralTab({ project }: GeneralTabProps): React.ReactElement {
+export function GeneralTab({ project, onOpenEditor }: GeneralTabProps): React.ReactElement {
   return (
     <div className="general-tab" data-testid="general-tab">
       <div className="general-header">
@@ -40,6 +42,14 @@ export function GeneralTab({ project }: GeneralTabProps): React.ReactElement {
           <InfoCell label="Created at" value={formatDate(project.created_at)} />
         </div>
       </div>
+
+      {onOpenEditor && (
+        <div style={{ marginTop: 'var(--spacing-lg)' }}>
+          <Button onClick={onOpenEditor} data-testid="open-editor-btn">
+            Open in Editor
+          </Button>
+        </div>
+      )}
 
       <div className="general-documents-section">
         <h3 className="general-documents-title">Documents</h3>

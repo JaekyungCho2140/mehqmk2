@@ -5,6 +5,7 @@ import { WelcomeWizard } from './views/WelcomeWizard';
 import { Dashboard } from './views/Dashboard';
 import { NewProjectWizard } from './views/NewProjectWizard';
 import { ProjectHome } from './views/ProjectHome';
+import { TranslationEditor } from './views/TranslationEditor';
 import type { Project } from '../shared/types/project';
 import './styles/components.css';
 import './styles/wizard.css';
@@ -14,7 +15,8 @@ type AppView =
   | { type: 'wizard' }
   | { type: 'dashboard' }
   | { type: 'new-project' }
-  | { type: 'project-home'; projectId: string };
+  | { type: 'project-home'; projectId: string }
+  | { type: 'editor'; projectId: string; projectName: string };
 
 export function App(): React.ReactElement {
   const { settings, loading: settingsLoading } = useSettings();
@@ -49,6 +51,10 @@ export function App(): React.ReactElement {
     setView({ type: 'dashboard' });
   }, [reloadProjects]);
 
+  const handleOpenEditor = useCallback((projectId: string, projectName: string) => {
+    setView({ type: 'editor', projectId, projectName });
+  }, []);
+
   if (view.type === 'loading' || settingsLoading) {
     return (
       <div className="loading-screen" data-testid="loading-screen">
@@ -75,8 +81,23 @@ export function App(): React.ReactElement {
     );
   }
 
+  if (view.type === 'editor') {
+    return (
+      <TranslationEditor
+        projectName={view.projectName}
+        onBack={() => setView({ type: 'project-home', projectId: view.projectId })}
+      />
+    );
+  }
+
   if (view.type === 'project-home') {
-    return <ProjectHome projectId={view.projectId} onBack={handleBackToDashboard} />;
+    return (
+      <ProjectHome
+        projectId={view.projectId}
+        onBack={handleBackToDashboard}
+        onOpenEditor={handleOpenEditor}
+      />
+    );
   }
 
   return (

@@ -1,0 +1,182 @@
+/* Translation Editor Layout */
+.translation-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.editor-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Segment Grid */
+.segment-grid {
+  flex: 1;
+  min-height: 200px;
+}
+
+.segment-grid .source-column {
+  background: var(--color-bg-secondary);
+}
+
+/* Segment cell styles */
+.seg-number-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.status-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  position: relative;
+}
+
+.status-box-lock {
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  font-size: 4px;
+}
+
+.source-cell {
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-family-ui);
+  color: var(--color-text-primary);
+}
+
+.target-cell {
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-family-ui);
+  color: var(--color-text-primary);
+}
+
+.target-cell--active {
+  border-left: 3px solid var(--color-accent-primary);
+  padding-left: 5px;
+}
+
+.target-cell-empty {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+/* Active row highlight */
+.seg-row--active {
+  background-color: #e0eaff !important;
+}
+
+/* Edit Panel */
+.edit-panel {
+  height: 180px;
+  border-top: 2px solid var(--color-accent-primary);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.edit-panel--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-panel-placeholder {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+.edit-panel-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 4px 12px;
+  flex-shrink: 0;
+}
+
+.edit-panel-source {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+}
+
+.edit-panel-text {
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.edit-panel-text--readonly {
+  user-select: text;
+  cursor: default;
+}
+
+.edit-panel-divider {
+  height: 1px;
+  background: var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.edit-panel-target {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+}
+
+.edit-panel-textarea {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  font-family: var(--font-family-ui);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+.edit-panel-textarea:focus {
+  border-left: 2px solid var(--color-accent-primary);
+  padding-left: 10px;
+}
+
+.edit-panel-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status Bar */
+.editor-statusbar {
+  height: 28px;
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  flex-shrink: 0;
+}
