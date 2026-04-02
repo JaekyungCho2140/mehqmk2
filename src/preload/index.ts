@@ -35,6 +35,8 @@ const electronAPI = {
   document: {
     import: (projectId: string, filePath?: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.DOCUMENT_IMPORT, { projectId, filePath }),
+    export: (documentId: string, projectId: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.DOCUMENT_EXPORT, { documentId, projectId }),
   },
   segments: {
     list: (documentId: string): Promise<Segment[]> =>

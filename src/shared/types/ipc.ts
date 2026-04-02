@@ -19,6 +19,7 @@ export const IPC_CHANNELS = {
   SEGMENTS_LIST: 'segments:list',
   SEGMENTS_UPDATE: 'segments:update',
   SEGMENTS_BULK_UPDATE: 'segments:bulk-update',
+  DOCUMENT_EXPORT: 'document:export',
 } as const;
 
 export interface IpcRequestMap {

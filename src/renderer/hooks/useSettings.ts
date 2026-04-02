@@ -27,6 +27,7 @@ declare global {
       };
       document: {
         import: (projectId: string, filePath?: string) => Promise<unknown>;
+        export: (documentId: string, projectId: string) => Promise<unknown>;
       };
       segments: {
         list: (documentId: string) => Promise<Segment[]>;
