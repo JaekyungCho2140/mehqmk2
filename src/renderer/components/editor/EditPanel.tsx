@@ -1,21 +1,31 @@
 import { useState, useCallback } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { Segment } from '../../../shared/types/segment';
+import type { TmMatch } from '../../../shared/types/tm';
 import { TipTapEditor } from './TipTapEditor';
 import { SourceDisplay } from './SourceDisplay';
 import { EditorToolbar } from './EditorToolbar';
+import { MatchIndicator } from './MatchIndicator';
+import { MatchList } from './MatchList';
 import { useTextManipulation } from '../../hooks/useTextManipulation';
+import '../../styles/match.css';
 
 interface EditPanelProps {
   readonly segment: Segment | null;
   readonly onTargetChange: (segmentId: string, newTarget: string) => void;
   readonly onEditorKeyDown?: (e: KeyboardEvent) => boolean;
+  readonly matches?: TmMatch[];
+  readonly bestMatchRate?: number | null;
+  readonly onMatchInsert?: (index: number) => void;
 }
 
 export function EditPanel({
   segment,
   onTargetChange,
   onEditorKeyDown,
+  matches = [],
+  bestMatchRate = null,
+  onMatchInsert,
 }: EditPanelProps): React.ReactElement {
   const [editor, setEditor] = useState<Editor | null>(null);
 
@@ -44,7 +54,10 @@ export function EditPanel({
   return (
     <div className="edit-panel" data-testid="edit-panel">
       <div className="edit-panel-source">
-        <div className="edit-panel-label">Source</div>
+        <div className="edit-panel-label-row">
+          <span className="edit-panel-label">Source</span>
+          <MatchIndicator matchRate={bestMatchRate} />
+        </div>
         <SourceDisplay html={segment.source} />
       </div>
       <div className="edit-panel-divider" />
@@ -62,6 +75,9 @@ export function EditPanel({
           onEditorReady={setEditor}
         />
       </div>
+      {onMatchInsert && (
+        <MatchList matches={matches} onInsert={onMatchInsert} />
+      )}
     </div>
   );
 }

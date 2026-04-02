@@ -7,6 +7,7 @@ interface UseConfirmationOptions {
   readonly userName: string;
   readonly onSegmentsChange: (updater: (prev: Segment[]) => Segment[]) => void;
   readonly goToNext: () => void;
+  readonly onConfirmToTm?: (source: string, target: string) => void;
 }
 
 interface UseConfirmationResult {
@@ -25,6 +26,7 @@ export function useConfirmation({
   userName,
   onSegmentsChange,
   goToNext,
+  onConfirmToTm,
 }: UseConfirmationOptions): UseConfirmationResult {
   const confirm = useCallback(() => {
     const segment = segments.find((s) => s.id === activeSegmentId);
@@ -62,9 +64,14 @@ export function useConfirmation({
       }),
     );
 
+    // TM에 번역 저장
+    if (onConfirmToTm) {
+      onConfirmToTm(segment.source, segment.target);
+    }
+
     // 다음 세그먼트로 이동 (마지막이면 이동 없음)
     if (!isLastSegment) goToNext();
-  }, [segments, activeSegmentId, userName, onSegmentsChange, goToNext]);
+  }, [segments, activeSegmentId, userName, onSegmentsChange, goToNext, onConfirmToTm]);
 
   const confirmNoTm = useCallback(() => {
     const segment = segments.find((s) => s.id === activeSegmentId);

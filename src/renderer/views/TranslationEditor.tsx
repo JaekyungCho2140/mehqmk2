@@ -11,9 +11,11 @@ import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
 import { useSegmentStatus, type ChangeStatusOptions } from '../hooks/useSegmentStatus';
 import { useSegmentStats } from '../hooks/useSegmentStats';
+import { useTmIntegration } from '../hooks/useTmIntegration';
 import '../styles/editor.css';
 
 interface TranslationEditorProps {
+  readonly projectId?: string;
   readonly projectName: string;
   readonly documentId?: string;
   readonly onBack: () => void;
@@ -55,6 +57,7 @@ const STATUS_ORDER = [
 ];
 
 export function TranslationEditor({
+  projectId,
   projectName,
   documentId,
   onBack,
@@ -177,12 +180,19 @@ export function TranslationEditor({
     onNavigate: setActiveSegmentId,
   });
 
+  const tmIntegration = useTmIntegration({
+    projectId,
+    segments,
+    activeSegmentId,
+  });
+
   const confirmation = useConfirmation({
     segments,
     activeSegmentId,
     userName: 'TestUser',
     onSegmentsChange: setSegments,
     goToNext: nav.goToNext,
+    onConfirmToTm: (source, target) => tmIntegration.saveToTm(source, target),
   });
 
   const segStatus = useSegmentStatus({
@@ -200,13 +210,38 @@ export function TranslationEditor({
     [segStatus],
   );
 
+  const handleMatchInsert = useCallback(
+    (index: number) => {
+      const target = tmIntegration.insertMatch(index);
+      if (target && activeSegmentId) {
+        handleTargetChange(activeSegmentId, target);
+        setSegments((prev) =>
+          prev.map((s) => {
+            if (s.id !== activeSegmentId) return s;
+            return { ...s, status: 'pre-translated', matchRate: tmIntegration.matches[index]?.match_rate ?? null };
+          }),
+        );
+      }
+    },
+    [tmIntegration, activeSegmentId, handleTargetChange],
+  );
+
   const handleEditorKeyDown = useCallback(
     (e: KeyboardEvent): boolean => {
       if (segStatus.handleKeyDown(e)) return true;
       if (confirmation.handleEditorKeyDown(e)) return true;
+      // Ctrl+1~9 → TM 매치 삽입
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '9') {
+        const index = parseInt(e.key, 10) - 1;
+        if (index < tmIntegration.matches.length) {
+          e.preventDefault();
+          handleMatchInsert(index);
+          return true;
+        }
+      }
       return nav.handleEditorKeyDown(e);
     },
-    [segStatus, confirmation, nav],
+    [segStatus, confirmation, nav, tmIntegration, handleMatchInsert],
   );
 
   return (
@@ -243,9 +278,12 @@ export function TranslationEditor({
         segment={activeSegment}
         onTargetChange={handleTargetChange}
         onEditorKeyDown={handleEditorKeyDown}
+        matches={tmIntegration.matches}
+        bestMatchRate={tmIntegration.bestMatchRate}
+        onMatchInsert={handleMatchInsert}
       />
 
-      <StatusBar stats={stats} isFiltered={isFiltered} />
+      <StatusBar stats={stats} isFiltered={isFiltered} tmMatchRate={tmIntegration.bestMatchRate} />
 
       {showChangeStatus && (
         <ChangeStatusDialog

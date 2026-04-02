@@ -84,6 +84,7 @@ export function App(): React.ReactElement {
   if (view.type === 'editor') {
     return (
       <TranslationEditor
+        projectId={view.projectId}
         projectName={view.projectName}
         onBack={() => setView({ type: 'project-home', projectId: view.projectId })}
       />

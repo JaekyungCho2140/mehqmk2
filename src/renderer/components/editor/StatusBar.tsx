@@ -17,9 +17,16 @@ const STATUS_COLORS: Record<string, string> = {
 interface StatusBarProps {
   readonly stats: SegmentStats;
   readonly isFiltered: boolean;
+  readonly tmMatchRate?: number | null;
 }
 
-export function StatusBar({ stats, isFiltered }: StatusBarProps): React.ReactElement {
+function getTmColor(rate: number): string {
+  if (rate >= 100) return '#22c55e';
+  if (rate >= 85) return '#3b82f6';
+  return '#f59e0b';
+}
+
+export function StatusBar({ stats, isFiltered, tmMatchRate }: StatusBarProps): React.ReactElement {
   return (
     <div className="status-bar" data-testid="editor-statusbar">
       <span className="status-bar-completeness">{stats.completeness}%</span>
@@ -44,6 +51,14 @@ export function StatusBar({ stats, isFiltered }: StatusBarProps): React.ReactEle
           <span className="status-bar-divider" />
         </>
       )}
+
+      <span
+        className="status-bar-tm"
+        style={{ color: tmMatchRate != null ? getTmColor(tmMatchRate) : 'var(--color-text-muted)' }}
+        data-testid="statusbar-tm"
+      >
+        TM: {tmMatchRate != null ? `${tmMatchRate}%` : '—'}
+      </span>
 
       <span className="status-bar-segment">
         Seg {stats.currentIndex}/{stats.total}
