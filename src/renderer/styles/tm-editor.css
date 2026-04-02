@@ -31,6 +31,18 @@
   color: var(--color-text-secondary);
 }
 
+.tm-editor-status {
+  font-size: var(--font-size-sm);
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.tm-editor-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border-default);
+}
+
 .tm-editor-grid {
   flex: 1;
   overflow: hidden;

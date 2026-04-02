@@ -72,6 +72,14 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.TM_UPDATE_ENTRY, { id, ...fields }),
     deleteEntry: (id: string): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.TM_DELETE_ENTRY, { id }),
+    importTmx: (tmId: string, filePath?: string): Promise<{ imported: number; skipped: number }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_IMPORT_TMX, { tmId, filePath }),
+    importCsv: (tmId: string, filePath?: string): Promise<{ imported: number; skipped: number }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_IMPORT_CSV, { tmId, filePath }),
+    exportTmx: (tmId: string): Promise<{ exported: number }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_EXPORT_TMX, { tmId }),
+    update: (id: string, fields: { allow_multiple?: boolean; allow_reverse?: boolean }): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_UPDATE, { id, ...fields }),
   },
 };
 

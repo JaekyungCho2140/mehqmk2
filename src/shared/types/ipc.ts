@@ -33,6 +33,10 @@ export const IPC_CHANNELS = {
   TM_LIST_ENTRIES: 'tm:list-entries',
   TM_UPDATE_ENTRY: 'tm:update-entry',
   TM_DELETE_ENTRY: 'tm:delete-entry',
+  TM_IMPORT_TMX: 'tm:import-tmx',
+  TM_IMPORT_CSV: 'tm:import-csv',
+  TM_EXPORT_TMX: 'tm:export-tmx',
+  TM_UPDATE: 'tm:update',
 } as const;
 
 export interface IpcRequestMap {
@@ -66,6 +70,10 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.TM_LIST_ENTRIES]: { tmId: string };
   [IPC_CHANNELS.TM_UPDATE_ENTRY]: { id: string; source?: string; target?: string; flagged?: boolean };
   [IPC_CHANNELS.TM_DELETE_ENTRY]: { id: string };
+  [IPC_CHANNELS.TM_IMPORT_TMX]: { tmId: string; filePath?: string };
+  [IPC_CHANNELS.TM_IMPORT_CSV]: { tmId: string; filePath?: string };
+  [IPC_CHANNELS.TM_EXPORT_TMX]: { tmId: string };
+  [IPC_CHANNELS.TM_UPDATE]: { id: string; allow_multiple?: boolean; allow_reverse?: boolean };
 }
 
 export interface IpcResponseMap {
@@ -97,6 +105,10 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.TM_LIST_ENTRIES]: TranslationUnit[];
   [IPC_CHANNELS.TM_UPDATE_ENTRY]: void;
   [IPC_CHANNELS.TM_DELETE_ENTRY]: void;
+  [IPC_CHANNELS.TM_IMPORT_TMX]: { imported: number; skipped: number };
+  [IPC_CHANNELS.TM_IMPORT_CSV]: { imported: number; skipped: number };
+  [IPC_CHANNELS.TM_EXPORT_TMX]: { exported: number };
+  [IPC_CHANNELS.TM_UPDATE]: void;
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;

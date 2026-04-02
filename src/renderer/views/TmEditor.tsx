@@ -9,6 +9,7 @@ import {
 import type { TranslationMemory, TranslationUnit } from '../../shared/types/tm';
 import { Button } from '../components/Button';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { TmSettingsDialog } from '../components/TmSettingsDialog';
 import '../styles/tm-editor.css';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -32,6 +33,8 @@ export function TmEditor({ tmId, onBack }: TmEditorProps): React.ReactElement {
   const [replaceText, setReplaceText] = useState('');
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [importStatus, setImportStatus] = useState<string | null>(null);
   const gridRef = useRef<AgGridReact<EditableEntry>>(null);
   const dirtyIdsRef = useRef(new Set<string>());
 
@@ -312,6 +315,62 @@ export function TmEditor({ tmId, onBack }: TmEditorProps): React.ReactElement {
         </div>
         <div className="tm-editor-toolbar-right">
           <span className="tm-editor-count">{entries.length} entries</span>
+          {importStatus && <span className="tm-editor-status">{importStatus}</span>}
+          <Button
+            variant="ghost"
+            onClick={async () => {
+              const result = await window.electronAPI.tm.importTmx(tmId);
+              if (result.imported > 0) {
+                setImportStatus(`Imported ${result.imported} entries`);
+                const fresh = await window.electronAPI.tm.listEntries(tmId);
+                setEntries(fresh);
+                const updated = await window.electronAPI.tm.get(tmId);
+                if (updated) setTm(updated);
+                setTimeout(() => setImportStatus(null), 3000);
+              }
+            }}
+            data-testid="tm-editor-import-tmx"
+          >
+            Import TMX
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={async () => {
+              const result = await window.electronAPI.tm.importCsv(tmId);
+              if (result.imported > 0) {
+                setImportStatus(`Imported ${result.imported} entries`);
+                const fresh = await window.electronAPI.tm.listEntries(tmId);
+                setEntries(fresh);
+                const updated = await window.electronAPI.tm.get(tmId);
+                if (updated) setTm(updated);
+                setTimeout(() => setImportStatus(null), 3000);
+              }
+            }}
+            data-testid="tm-editor-import-csv"
+          >
+            Import CSV
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={async () => {
+              const result = await window.electronAPI.tm.exportTmx(tmId);
+              if (result.exported > 0) {
+                setImportStatus(`Exported ${result.exported} entries`);
+                setTimeout(() => setImportStatus(null), 3000);
+              }
+            }}
+            data-testid="tm-editor-export-tmx"
+          >
+            Export TMX
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => setShowSettings(true)}
+            data-testid="tm-editor-settings"
+          >
+            Settings
+          </Button>
+          <span className="tm-editor-divider" />
           <Button
             variant="ghost"
             onClick={() => setShowFlaggedOnly((v) => !v)}
@@ -384,6 +443,19 @@ export function TmEditor({ tmId, onBack }: TmEditorProps): React.ReactElement {
           domLayout="normal"
         />
       </div>
+
+      {showSettings && tm && (
+        <TmSettingsDialog
+          tm={tm}
+          onSave={async (settings) => {
+            await window.electronAPI.tm.update(tmId, settings);
+            const updated = await window.electronAPI.tm.get(tmId);
+            if (updated) setTm(updated);
+            setShowSettings(false);
+          }}
+          onCancel={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }

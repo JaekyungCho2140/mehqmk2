@@ -1,9 +1,12 @@
 import type Database from 'better-sqlite3';
-import { ipcMain } from 'electron';
+import { ipcMain, dialog, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../shared/types/ipc';
 import { TmRepository } from '../../db/repositories/tm';
 import type { CreateTmInput, TmRole, TmSearchInput, AddTmEntryInput } from '../../shared/types/tm';
 import { TmMatchEngine } from '../tm/match-engine';
+import { importTmx } from '../tm/import-tmx';
+import { importCsv } from '../tm/import-csv';
+import { exportTmx } from '../tm/export-tmx';
 
 export function registerTmIpc(db: Database.Database): void {
   const tmRepo = new TmRepository(db);
@@ -76,4 +79,73 @@ export function registerTmIpc(db: Database.Database): void {
   ipcMain.handle(IPC_CHANNELS.TM_DELETE_ENTRY, (_event, payload: { id: string }) => {
     tmRepo.deleteEntry(payload.id);
   });
+
+  ipcMain.handle(
+    IPC_CHANNELS.TM_IMPORT_TMX,
+    async (_event, payload: { tmId: string; filePath?: string }) => {
+      let filePath = payload.filePath;
+      if (!filePath) {
+        const win = BrowserWindow.getFocusedWindow();
+        const result = await dialog.showOpenDialog(win!, {
+          filters: [{ name: 'TMX', extensions: ['tmx'] }],
+          properties: ['openFile'],
+        });
+        if (result.canceled || result.filePaths.length === 0) return { imported: 0, skipped: 0 };
+        filePath = result.filePaths[0];
+      }
+      return importTmx(db, payload.tmId, filePath);
+    },
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.TM_IMPORT_CSV,
+    async (_event, payload: { tmId: string; filePath?: string }) => {
+      let filePath = payload.filePath;
+      if (!filePath) {
+        const win = BrowserWindow.getFocusedWindow();
+        const result = await dialog.showOpenDialog(win!, {
+          filters: [{ name: 'CSV', extensions: ['csv', 'txt'] }],
+          properties: ['openFile'],
+        });
+        if (result.canceled || result.filePaths.length === 0) return { imported: 0, skipped: 0 };
+        filePath = result.filePaths[0];
+      }
+      return importCsv(db, payload.tmId, filePath);
+    },
+  );
+
+  ipcMain.handle(IPC_CHANNELS.TM_EXPORT_TMX, async (_event, payload: { tmId: string }) => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = await dialog.showSaveDialog(win!, {
+      filters: [{ name: 'TMX', extensions: ['tmx'] }],
+      defaultPath: 'export.tmx',
+    });
+    if (result.canceled || !result.filePath) return { exported: 0 };
+    return exportTmx(db, payload.tmId, result.filePath);
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.TM_UPDATE,
+    (_event, payload: { id: string; allow_multiple?: boolean; allow_reverse?: boolean }) => {
+      const updates: string[] = [];
+      const values: unknown[] = [];
+
+      if (payload.allow_multiple !== undefined) {
+        updates.push('allow_multiple = ?');
+        values.push(payload.allow_multiple ? 1 : 0);
+      }
+      if (payload.allow_reverse !== undefined) {
+        updates.push('allow_reverse = ?');
+        values.push(payload.allow_reverse ? 1 : 0);
+      }
+
+      if (updates.length > 0) {
+        updates.push("updated_at = datetime('now')");
+        values.push(payload.id);
+        db.prepare(`UPDATE translation_memories SET ${updates.join(', ')} WHERE id = ?`).run(
+          ...values,
+        );
+      }
+    },
+  );
 }
