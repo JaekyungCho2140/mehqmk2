@@ -7,6 +7,7 @@ import { StatusBar } from '../components/editor/StatusBar';
 import { FilterBar, type FilterState } from '../components/editor/FilterBar';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { ChangeStatusDialog } from '../components/editor/ChangeStatusDialog';
+import { ResultsPane } from '../components/results/ResultsPane';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
 import { useSegmentStatus, type ChangeStatusOptions } from '../hooks/useSegmentStatus';
@@ -109,6 +110,8 @@ export function TranslationEditor({
     [segments, activeSegmentId, documentId, saveSegmentToDb],
   );
   const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [resultsPaneCollapsed, setResultsPaneCollapsed] = useState(false);
+  const [pendingInsert, setPendingInsert] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterState>({
     sourceFilter: '',
     targetFilter: '',
@@ -214,7 +217,7 @@ export function TranslationEditor({
     (index: number) => {
       const target = tmIntegration.insertMatch(index);
       if (target && activeSegmentId) {
-        handleTargetChange(activeSegmentId, target);
+        setPendingInsert(target);
         setSegments((prev) =>
           prev.map((s) => {
             if (s.id !== activeSegmentId) return s;
@@ -223,8 +226,20 @@ export function TranslationEditor({
         );
       }
     },
-    [tmIntegration, activeSegmentId, handleTargetChange],
+    [tmIntegration, activeSegmentId],
   );
+
+  // F12 → Results Pane 토글
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'F12') {
+        e.preventDefault();
+        setResultsPaneCollapsed((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const handleEditorKeyDown = useCallback(
     (e: KeyboardEvent): boolean => {
@@ -267,21 +282,33 @@ export function TranslationEditor({
 
       <FilterBar onFilterChange={setFilter} />
 
-      <SegmentGrid
-        segments={filteredSegments}
-        activeSegmentId={activeSegmentId}
-        onSegmentSelect={handleSegmentSelect}
-        onStatusBoxDoubleClick={() => setShowChangeStatus(true)}
-      />
+      <div className="editor-main">
+        <div className="editor-left">
+          <SegmentGrid
+            segments={filteredSegments}
+            activeSegmentId={activeSegmentId}
+            onSegmentSelect={handleSegmentSelect}
+            onStatusBoxDoubleClick={() => setShowChangeStatus(true)}
+          />
 
-      <EditPanel
-        segment={activeSegment}
-        onTargetChange={handleTargetChange}
-        onEditorKeyDown={handleEditorKeyDown}
-        matches={tmIntegration.matches}
-        bestMatchRate={tmIntegration.bestMatchRate}
-        onMatchInsert={handleMatchInsert}
-      />
+          <EditPanel
+            segment={activeSegment}
+            onTargetChange={handleTargetChange}
+            onEditorKeyDown={handleEditorKeyDown}
+            bestMatchRate={tmIntegration.bestMatchRate}
+            insertContent={pendingInsert}
+            onInsertHandled={() => setPendingInsert(null)}
+          />
+        </div>
+
+        <ResultsPane
+          matches={tmIntegration.matches}
+          currentSource={activeSegment ? stripHtml(activeSegment.source) : ''}
+          collapsed={resultsPaneCollapsed}
+          onInsert={handleMatchInsert}
+          onToggleCollapse={() => setResultsPaneCollapsed((v) => !v)}
+        />
+      </div>
 
       <StatusBar stats={stats} isFiltered={isFiltered} tmMatchRate={tmIntegration.bestMatchRate} />
 

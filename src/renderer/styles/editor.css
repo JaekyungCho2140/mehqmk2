@@ -20,6 +20,21 @@
   gap: var(--spacing-sm);
 }
 
+/* Editor Main: left content + right Results Pane */
+.editor-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
 /* Segment Grid */
 .segment-grid {
   flex: 1;

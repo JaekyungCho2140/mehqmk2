@@ -1,12 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { Segment } from '../../../shared/types/segment';
-import type { TmMatch } from '../../../shared/types/tm';
 import { TipTapEditor } from './TipTapEditor';
 import { SourceDisplay } from './SourceDisplay';
 import { EditorToolbar } from './EditorToolbar';
 import { MatchIndicator } from './MatchIndicator';
-import { MatchList } from './MatchList';
 import { useTextManipulation } from '../../hooks/useTextManipulation';
 import '../../styles/match.css';
 
@@ -14,20 +12,29 @@ interface EditPanelProps {
   readonly segment: Segment | null;
   readonly onTargetChange: (segmentId: string, newTarget: string) => void;
   readonly onEditorKeyDown?: (e: KeyboardEvent) => boolean;
-  readonly matches?: TmMatch[];
   readonly bestMatchRate?: number | null;
-  readonly onMatchInsert?: (index: number) => void;
+  readonly insertContent?: string | null;
+  readonly onInsertHandled?: () => void;
 }
 
 export function EditPanel({
   segment,
   onTargetChange,
   onEditorKeyDown,
-  matches = [],
   bestMatchRate = null,
-  onMatchInsert,
+  insertContent = null,
+  onInsertHandled,
 }: EditPanelProps): React.ReactElement {
   const [editor, setEditor] = useState<Editor | null>(null);
+
+  // Handle external content insertion into TipTap
+  useEffect(() => {
+    if (insertContent === null || !editor || !segment) return;
+    editor.commands.setContent(insertContent, { emitUpdate: false });
+    onTargetChange(segment.id, insertContent);
+    onInsertHandled?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [insertContent]);
 
   const textManip = useTextManipulation({
     editor,
@@ -75,9 +82,6 @@ export function EditPanel({
           onEditorReady={setEditor}
         />
       </div>
-      {onMatchInsert && (
-        <MatchList matches={matches} onInsert={onMatchInsert} />
-      )}
     </div>
   );
 }
