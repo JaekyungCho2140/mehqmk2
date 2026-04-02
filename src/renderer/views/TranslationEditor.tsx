@@ -9,6 +9,7 @@ import { Breadcrumb } from '../components/Breadcrumb';
 import { ChangeStatusDialog } from '../components/editor/ChangeStatusDialog';
 import { ResultsPane } from '../components/results/ResultsPane';
 import { AutoLookupSettings } from '../components/AutoLookupSettings';
+import { ConcordancePanel } from '../components/concordance/ConcordancePanel';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
 import { useSegmentStatus, type ChangeStatusOptions } from '../hooks/useSegmentStatus';
@@ -114,6 +115,8 @@ export function TranslationEditor({
   const [resultsPaneCollapsed, setResultsPaneCollapsed] = useState(false);
   const [pendingInsert, setPendingInsert] = useState<string | null>(null);
   const [showAutoLookupSettings, setShowAutoLookupSettings] = useState(false);
+  const [showConcordance, setShowConcordance] = useState(false);
+  const [concordanceQuery, setConcordanceQuery] = useState('');
   const [autoScan, setAutoScan] = useState(true);
   const [autoInsert, setAutoInsert] = useState(false);
   const [autoInsertThreshold, setAutoInsertThreshold] = useState(85);
@@ -263,12 +266,19 @@ export function TranslationEditor({
     [tmIntegration, activeSegmentId],
   );
 
-  // F12 → Results Pane 토글
+  // F12 → Results Pane 토글, Ctrl+K → Concordance
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'F12') {
         e.preventDefault();
         setResultsPaneCollapsed((v) => !v);
+      }
+      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        // Get selected text from TipTap or current word
+        const selection = window.getSelection()?.toString().trim() ?? '';
+        setConcordanceQuery(selection);
+        setShowConcordance(true);
       }
     };
     window.addEventListener('keydown', handler);
@@ -353,6 +363,19 @@ export function TranslationEditor({
           onToggleCollapse={() => setResultsPaneCollapsed((v) => !v)}
         />
       </div>
+
+      {showConcordance && (
+        <ConcordancePanel
+          projectId={projectId}
+          initialQuery={concordanceQuery}
+          onInsert={(target) => {
+            if (activeSegmentId) {
+              setPendingInsert(target);
+            }
+          }}
+          onClose={() => setShowConcordance(false)}
+        />
+      )}
 
       <StatusBar stats={stats} isFiltered={isFiltered} tmMatchRate={tmIntegration.bestMatchRate} />
 

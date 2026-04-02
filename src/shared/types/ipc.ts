@@ -1,7 +1,7 @@
 import type { SettingsKey, UserSettings } from './settings';
 import type { Project, CreateProjectInput } from './project';
 import type { Segment } from './segment';
-import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput } from './tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem } from './tm';
 
 export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
@@ -37,6 +37,7 @@ export const IPC_CHANNELS = {
   TM_IMPORT_CSV: 'tm:import-csv',
   TM_EXPORT_TMX: 'tm:export-tmx',
   TM_UPDATE: 'tm:update',
+  TM_CONCORDANCE: 'tm:concordance',
 } as const;
 
 export interface IpcRequestMap {
@@ -74,6 +75,7 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.TM_IMPORT_CSV]: { tmId: string; filePath?: string };
   [IPC_CHANNELS.TM_EXPORT_TMX]: { tmId: string };
   [IPC_CHANNELS.TM_UPDATE]: { id: string; allow_multiple?: boolean; allow_reverse?: boolean };
+  [IPC_CHANNELS.TM_CONCORDANCE]: ConcordanceInput;
 }
 
 export interface IpcResponseMap {
@@ -109,6 +111,7 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.TM_IMPORT_CSV]: { imported: number; skipped: number };
   [IPC_CHANNELS.TM_EXPORT_TMX]: { exported: number };
   [IPC_CHANNELS.TM_UPDATE]: void;
+  [IPC_CHANNELS.TM_CONCORDANCE]: ConcordanceResultItem[];
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;

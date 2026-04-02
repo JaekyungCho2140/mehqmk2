@@ -1,0 +1,198 @@
+/* Concordance Panel */
+.concordance-panel {
+  border-top: 1px solid var(--color-border-default);
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: var(--color-bg-primary);
+}
+
+.concordance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 12px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.concordance-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.concordance-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-muted);
+  padding: 0 4px;
+}
+
+.concordance-close:hover {
+  color: var(--color-text-primary);
+}
+
+/* Search bar */
+.concordance-search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.concordance-input {
+  width: 200px;
+  height: 26px;
+  font-size: var(--font-size-sm);
+}
+
+.concordance-toggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.concordance-mode-tabs {
+  display: flex;
+  margin-left: auto;
+}
+
+.concordance-mode-tab {
+  background: none;
+  border: 1px solid var(--color-border-default);
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.concordance-mode-tab:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.concordance-mode-tab:last-child {
+  border-radius: 0 4px 4px 0;
+  border-left: none;
+}
+
+.concordance-mode-tab--active {
+  background: var(--color-accent-primary);
+  color: #fff;
+  border-color: var(--color-accent-primary);
+}
+
+/* Results */
+.concordance-results {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.concordance-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.concordance-status {
+  height: 20px;
+  padding: 0 12px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+/* Full View */
+.concordance-full-item {
+  padding: 6px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.concordance-full-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.concordance-full-source {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.concordance-full-target {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.concordance-full-tm {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.concordance-highlight {
+  font-weight: 700;
+  background: #fef3c7;
+}
+
+.concordance-guess {
+  background: #dcfce7;
+}
+
+/* KWIC View */
+.kwic-row {
+  display: flex;
+  height: 28px;
+  align-items: center;
+  font-size: 13px;
+  font-family: var(--font-family-mono, monospace);
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.kwic-row:hover {
+  background: var(--color-bg-secondary);
+}
+
+.kwic-left {
+  flex: 1;
+  text-align: right;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+
+.kwic-keyword {
+  font-weight: 700;
+  background: #fef3c7;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.kwic-right {
+  flex: 1;
+  text-align: left;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 4px;
+}

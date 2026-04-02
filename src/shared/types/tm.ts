@@ -78,3 +78,19 @@ export interface AddTmEntryInput {
   readonly contextId?: string;
   readonly createdBy?: string;
 }
+
+export interface ConcordanceInput {
+  readonly projectId: string;
+  readonly query: string;
+  readonly caseSensitive?: boolean;
+  readonly autoWildcard?: boolean;
+}
+
+export interface ConcordanceResultItem {
+  readonly tu_id: string;
+  readonly tm_name: string;
+  readonly source: string;
+  readonly target: string;
+  readonly source_highlight: Array<{ start: number; end: number }>;
+  readonly target_guess: Array<{ start: number; end: number }>;
+}

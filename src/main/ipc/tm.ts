@@ -2,11 +2,12 @@ import type Database from 'better-sqlite3';
 import { ipcMain, dialog, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../shared/types/ipc';
 import { TmRepository } from '../../db/repositories/tm';
-import type { CreateTmInput, TmRole, TmSearchInput, AddTmEntryInput } from '../../shared/types/tm';
+import type { CreateTmInput, TmRole, TmSearchInput, AddTmEntryInput, ConcordanceInput } from '../../shared/types/tm';
 import { TmMatchEngine } from '../tm/match-engine';
 import { importTmx } from '../tm/import-tmx';
 import { importCsv } from '../tm/import-csv';
 import { exportTmx } from '../tm/export-tmx';
+import { concordanceSearch } from '../tm/concordance';
 
 export function registerTmIpc(db: Database.Database): void {
   const tmRepo = new TmRepository(db);
@@ -148,4 +149,11 @@ export function registerTmIpc(db: Database.Database): void {
       }
     },
   );
+
+  ipcMain.handle(IPC_CHANNELS.TM_CONCORDANCE, (_event, payload: ConcordanceInput) => {
+    return concordanceSearch(db, payload.projectId, payload.query, {
+      caseSensitive: payload.caseSensitive,
+      autoWildcard: payload.autoWildcard,
+    });
+  });
 }

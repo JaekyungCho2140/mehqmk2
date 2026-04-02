@@ -3,7 +3,7 @@ import { IPC_CHANNELS } from '../shared/types/ipc';
 import type { SettingsKey, UserSettings } from '../shared/types/settings';
 import type { Project, CreateProjectInput } from '../shared/types/project';
 import type { Segment } from '../shared/types/segment';
-import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput } from '../shared/types/tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem } from '../shared/types/tm';
 
 const electronAPI = {
   platform: process.platform,
@@ -80,6 +80,8 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.TM_EXPORT_TMX, { tmId }),
     update: (id: string, fields: { allow_multiple?: boolean; allow_reverse?: boolean }): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.TM_UPDATE, { id, ...fields }),
+    concordance: (input: ConcordanceInput): Promise<ConcordanceResultItem[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_CONCORDANCE, input),
   },
 };
 
