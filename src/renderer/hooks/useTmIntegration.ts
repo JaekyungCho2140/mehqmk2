@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Segment } from '../../shared/types/segment';
-import type { TmMatch, TranslationMemory } from '../../shared/types/tm';
+import type { TmMatch, TranslationMemory, FragmentMatchResult } from '../../shared/types/tm';
 
 interface UseTmIntegrationOptions {
   readonly projectId?: string;
@@ -10,12 +10,16 @@ interface UseTmIntegrationOptions {
   readonly autoInsertEnabled?: boolean;
   readonly autoInsertThreshold?: number;
   readonly copySourceIfNoMatch?: boolean;
+  readonly fragmentEnabled?: boolean;
+  readonly fragmentMinCoverage?: number;
 }
 
 interface UseTmIntegrationResult {
   readonly matches: TmMatch[];
   readonly bestMatchRate: number | null;
+  readonly fragmentMatch: FragmentMatchResult | null;
   readonly insertMatch: (index: number) => string | null;
+  readonly insertFragment: () => string | null;
   readonly saveToTm: (source: string, target: string) => void;
   readonly handleMatchKeyDown: (e: KeyboardEvent) => boolean;
 }
@@ -32,8 +36,11 @@ export function useTmIntegration({
   autoInsertEnabled = false,
   autoInsertThreshold = 85,
   copySourceIfNoMatch = false,
+  fragmentEnabled = true,
+  fragmentMinCoverage = 70,
 }: UseTmIntegrationOptions): UseTmIntegrationResult {
   const [matches, setMatches] = useState<TmMatch[]>([]);
+  const [fragmentMatch, setFragmentMatch] = useState<FragmentMatchResult | null>(null);
   const [workingTmId, setWorkingTmId] = useState<string | null>(null);
   const searchAbortRef = useRef(0);
   const onAutoInsertRef = useRef(onAutoInsert);
@@ -90,6 +97,18 @@ export function useTmIntegration({
         if (searchAbortRef.current === searchId && !cancelled) {
           setMatches(results);
 
+          // Fragment Assembly: run when best match < 100%
+          const bestRate = results.length > 0 ? results[0].match_rate : 0;
+          if (fragmentEnabled && bestRate < 100 && projectId) {
+            window.electronAPI.tm.fragment(projectId, source, fragmentMinCoverage).then((frag) => {
+              if (searchAbortRef.current === searchId && !cancelled) {
+                setFragmentMatch(frag);
+              }
+            });
+          } else {
+            setFragmentMatch(null);
+          }
+
           // Auto-insert logic
           if (autoInsertEnabled && onAutoInsertRef.current && segment) {
             const targetEmpty = !stripHtml(segment.target);
@@ -103,7 +122,7 @@ export function useTmIntegration({
       });
 
     return () => { cancelled = true; };
-  }, [projectId, activeSegmentId, segments, autoInsertEnabled, autoInsertThreshold, copySourceIfNoMatch]);
+  }, [projectId, activeSegmentId, segments, autoInsertEnabled, autoInsertThreshold, copySourceIfNoMatch, fragmentEnabled, fragmentMinCoverage]);
 
   const bestMatchRate = matches.length > 0 ? matches[0].match_rate : null;
 
@@ -114,6 +133,11 @@ export function useTmIntegration({
     },
     [matches],
   );
+
+  const insertFragment = useCallback((): string | null => {
+    if (!fragmentMatch) return null;
+    return fragmentMatch.assembled_target;
+  }, [fragmentMatch]);
 
   const saveToTm = useCallback(
     (source: string, target: string) => {
@@ -161,7 +185,9 @@ export function useTmIntegration({
   return {
     matches,
     bestMatchRate,
+    fragmentMatch,
     insertMatch,
+    insertFragment,
     saveToTm,
     handleMatchKeyDown,
   };

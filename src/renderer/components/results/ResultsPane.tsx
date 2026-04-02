@@ -1,23 +1,28 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { TmMatch } from '../../../shared/types/tm';
+import type { TmMatch, FragmentMatchResult } from '../../../shared/types/tm';
 import { ResultsList } from './ResultsList';
 import { CompareBox } from './CompareBox';
 import { MetaInfo } from './MetaInfo';
+import { FragmentResult } from './FragmentResult';
 import '../../styles/results.css';
 
 interface ResultsPaneProps {
   readonly matches: TmMatch[];
+  readonly fragmentMatch?: FragmentMatchResult | null;
   readonly currentSource: string;
   readonly collapsed: boolean;
   readonly onInsert: (index: number) => void;
+  readonly onInsertFragment?: () => void;
   readonly onToggleCollapse: () => void;
 }
 
 export function ResultsPane({
   matches,
+  fragmentMatch,
   currentSource,
   collapsed,
   onInsert,
+  onInsertFragment,
   onToggleCollapse,
 }: ResultsPaneProps): React.ReactElement {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -125,6 +130,13 @@ export function ResultsPane({
         onSelect={setSelectedIndex}
         onInsert={onInsert}
       />
+
+      {fragmentMatch && onInsertFragment && (
+        <FragmentResult
+          fragment={fragmentMatch}
+          onInsert={onInsertFragment}
+        />
+      )}
 
       {selectedMatch && (
         <CompareBox

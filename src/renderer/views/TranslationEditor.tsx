@@ -357,9 +357,19 @@ export function TranslationEditor({
 
         <ResultsPane
           matches={tmIntegration.matches}
+          fragmentMatch={tmIntegration.fragmentMatch}
           currentSource={activeSegment ? stripHtml(activeSegment.source) : ''}
           collapsed={resultsPaneCollapsed}
           onInsert={handleMatchInsert}
+          onInsertFragment={() => {
+            const target = tmIntegration.insertFragment();
+            if (target && activeSegmentId) {
+              setPendingInsert(target);
+              setSegments((prev) =>
+                prev.map((s) => (s.id !== activeSegmentId ? s : { ...s, status: 'assembled' })),
+              );
+            }
+          }}
           onToggleCollapse={() => setResultsPaneCollapsed((v) => !v)}
         />
       </div>

@@ -1,7 +1,7 @@
 import type { SettingsKey, UserSettings } from './settings';
 import type { Project, CreateProjectInput } from './project';
 import type { Segment } from './segment';
-import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem } from './tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem, FragmentMatchResult } from './tm';
 
 export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
@@ -38,6 +38,7 @@ export const IPC_CHANNELS = {
   TM_EXPORT_TMX: 'tm:export-tmx',
   TM_UPDATE: 'tm:update',
   TM_CONCORDANCE: 'tm:concordance',
+  TM_FRAGMENT: 'tm:fragment',
 } as const;
 
 export interface IpcRequestMap {
@@ -76,6 +77,7 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.TM_EXPORT_TMX]: { tmId: string };
   [IPC_CHANNELS.TM_UPDATE]: { id: string; allow_multiple?: boolean; allow_reverse?: boolean };
   [IPC_CHANNELS.TM_CONCORDANCE]: ConcordanceInput;
+  [IPC_CHANNELS.TM_FRAGMENT]: { projectId: string; source: string; minCoverage?: number };
 }
 
 export interface IpcResponseMap {
@@ -112,6 +114,7 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.TM_EXPORT_TMX]: { exported: number };
   [IPC_CHANNELS.TM_UPDATE]: void;
   [IPC_CHANNELS.TM_CONCORDANCE]: ConcordanceResultItem[];
+  [IPC_CHANNELS.TM_FRAGMENT]: FragmentMatchResult | null;
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;

@@ -169,6 +169,25 @@
   white-space: nowrap;
 }
 
+/* Fragment Result */
+.fragment-result {
+  border-left: 3px solid #8b5cf6;
+  background: #faf5ff;
+}
+
+.fragment-parts {
+  font-size: 13px;
+}
+
+.fragment-matched {
+  color: var(--color-text-primary);
+}
+
+.fragment-unmatched {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 /* Diff Lamps */
 .diff-lamps {
   display: flex;

@@ -8,6 +8,7 @@ import { importTmx } from '../tm/import-tmx';
 import { importCsv } from '../tm/import-csv';
 import { exportTmx } from '../tm/export-tmx';
 import { concordanceSearch } from '../tm/concordance';
+import { assembleFragments } from '../tm/fragment-assembly';
 
 export function registerTmIpc(db: Database.Database): void {
   const tmRepo = new TmRepository(db);
@@ -156,4 +157,11 @@ export function registerTmIpc(db: Database.Database): void {
       autoWildcard: payload.autoWildcard,
     });
   });
+
+  ipcMain.handle(
+    IPC_CHANNELS.TM_FRAGMENT,
+    (_event, payload: { projectId: string; source: string; minCoverage?: number }) => {
+      return assembleFragments(db, payload.projectId, payload.source, payload.minCoverage);
+    },
+  );
 }

@@ -3,7 +3,7 @@ import { IPC_CHANNELS } from '../shared/types/ipc';
 import type { SettingsKey, UserSettings } from '../shared/types/settings';
 import type { Project, CreateProjectInput } from '../shared/types/project';
 import type { Segment } from '../shared/types/segment';
-import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem } from '../shared/types/tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput, ConcordanceInput, ConcordanceResultItem, FragmentMatchResult } from '../shared/types/tm';
 
 const electronAPI = {
   platform: process.platform,
@@ -82,6 +82,8 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.TM_UPDATE, { id, ...fields }),
     concordance: (input: ConcordanceInput): Promise<ConcordanceResultItem[]> =>
       ipcRenderer.invoke(IPC_CHANNELS.TM_CONCORDANCE, input),
+    fragment: (projectId: string, source: string, minCoverage?: number): Promise<FragmentMatchResult | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_FRAGMENT, { projectId, source, minCoverage }),
   },
 };
 

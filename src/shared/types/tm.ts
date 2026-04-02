@@ -86,6 +86,16 @@ export interface ConcordanceInput {
   readonly autoWildcard?: boolean;
 }
 
+export interface FragmentMatchResult {
+  readonly assembled_target: string;
+  readonly coverage: number;
+  readonly fragments: Array<{
+    readonly source_part: string;
+    readonly target_part: string;
+    readonly matched: boolean;
+  }>;
+}
+
 export interface ConcordanceResultItem {
   readonly tu_id: string;
   readonly tm_name: string;
