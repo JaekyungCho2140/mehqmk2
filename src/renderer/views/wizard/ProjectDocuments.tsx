@@ -1,15 +1,22 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { FileDropZone, type FileEntry } from '../../components/FileDropZone';
+import { ImportSettingsDialog } from '../../components/ImportSettingsDialog';
+import type { ImportSettings } from '../../../shared/types/import-settings';
 
 interface ProjectDocumentsProps {
   readonly files: FileEntry[];
   readonly onFilesChange: (files: FileEntry[]) => void;
+  readonly importSettings?: ImportSettings;
+  readonly onImportSettingsChange?: (settings: ImportSettings) => void;
 }
 
 export function ProjectDocuments({
   files,
   onFilesChange,
+  onImportSettingsChange,
 }: ProjectDocumentsProps): React.ReactElement {
+  const [showSettings, setShowSettings] = useState(false);
+
   const handleFilesAdd = useCallback(
     (newFiles: FileEntry[]) => {
       onFilesChange([...files, ...newFiles]);
@@ -29,8 +36,16 @@ export function ProjectDocuments({
   }, [onFilesChange]);
 
   const handleBrowse = useCallback(() => {
-    // 현재는 드래그앤드롭만 지원, Browse는 향후 IPC 확장
+    // 현재는 드래그앤드롭만 지원
   }, []);
+
+  const handleSettingsConfirm = useCallback(
+    (settings: ImportSettings) => {
+      onImportSettingsChange?.(settings);
+      setShowSettings(false);
+    },
+    [onImportSettingsChange],
+  );
 
   return (
     <div className="step-content">
@@ -44,7 +59,24 @@ export function ProjectDocuments({
           onRemoveAll={handleRemoveAll}
           onBrowse={handleBrowse}
         />
+        {files.length > 0 && (
+          <button
+            className="btn-secondary-full"
+            style={{ marginTop: 'var(--spacing-sm)', width: 'auto' }}
+            onClick={() => setShowSettings(true)}
+            data-testid="import-with-options-btn"
+          >
+            Import with options...
+          </button>
+        )}
       </div>
+
+      {showSettings && (
+        <ImportSettingsDialog
+          onConfirm={handleSettingsConfirm}
+          onCancel={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }
