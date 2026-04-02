@@ -84,4 +84,23 @@ export const SEL = {
 
   // Loading
   LOADING_SCREEN: '[data-testid="loading-screen"]',
+
+  // TM
+  CREATE_TM_DIALOG: '[data-testid="create-tm-dialog"]',
+  CREATE_TM_NAME_INPUT: '[data-testid="create-tm-name-input"]',
+  CREATE_TM_SOURCE_LANG: '[data-testid="create-tm-source-lang"]',
+  CREATE_TM_TARGET_LANG: '[data-testid="create-tm-target-lang"]',
+  CREATE_TM_DESCRIPTION: '[data-testid="create-tm-description"]',
+  CREATE_TM_CONFIRM: '[data-testid="create-tm-confirm"]',
+  CREATE_TM_ROLE_WORKING: '[data-testid="create-tm-role-working"]',
+  CREATE_TM_ROLE_MASTER: '[data-testid="create-tm-role-master"]',
+  CREATE_TM_ROLE_REFERENCE: '[data-testid="create-tm-role-reference"]',
+
+  // Wizard TM Step
+  WIZARD_TM_STEP: '[data-testid="wizard-tm-step"]',
+  WIZARD_CREATE_TM_BTN: '[data-testid="wizard-create-tm-btn"]',
+  WIZARD_TM_EMPTY: '[data-testid="wizard-tm-empty"]',
+  WIZARD_TM_LIST: '[data-testid="wizard-tm-list"]',
+  NEW_PROJECT_NEXT_BTN: '[data-testid="new-project-next-btn"]',
+  NEW_PROJECT_BACK_BTN: '[data-testid="new-project-back-btn"]',
 } as const;

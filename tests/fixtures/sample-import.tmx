@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tmx version="1.4">
+  <header creationtool="mehQ Test" creationtoolversion="1.0"
+          segtype="sentence" o-tmf="TW4Win" adminlang="en-us"
+          srclang="en" datatype="plaintext"/>
+  <body>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>Good morning</seg>
+      </tuv>
+      <tuv xml:lang="ko">
+        <seg>좋은 아침</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>Good evening</seg>
+      </tuv>
+      <tuv xml:lang="ko">
+        <seg>좋은 저녁</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="en">
+        <seg>Thank you</seg>
+      </tuv>
+      <tuv xml:lang="ko">
+        <seg>감사합니다</seg>
+      </tuv>
+    </tu>
+  </body>
+</tmx>
