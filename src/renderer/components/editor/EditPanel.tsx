@@ -1,10 +1,12 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { Segment } from '../../../shared/types/segment';
 import { TipTapEditor } from './TipTapEditor';
 import { SourceDisplay } from './SourceDisplay';
 import { EditorToolbar } from './EditorToolbar';
 import { MatchIndicator } from './MatchIndicator';
+import { AutoPickMenu } from './AutoPickMenu';
+import { recognizeItems, type RecognizedItem } from '../../../main/autopick/recognizer';
 import { useTextManipulation } from '../../hooks/useTextManipulation';
 import '../../styles/match.css';
 
@@ -26,6 +28,53 @@ export function EditPanel({
   onInsertHandled,
 }: EditPanelProps): React.ReactElement {
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [autoPickItems, setAutoPickItems] = useState<RecognizedItem[]>([]);
+  const [autoPickPos, setAutoPickPos] = useState({ x: 0, y: 0 });
+  const ctrlAloneRef = useRef(false);
+
+  // AutoPick: detect Ctrl-only keyup
+  useEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        ctrlAloneRef.current = true;
+      } else {
+        ctrlAloneRef.current = false;
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if ((e.key === 'Control' || e.key === 'Meta') && ctrlAloneRef.current && segment) {
+        ctrlAloneRef.current = false;
+        const sourceText = segment.source.replace(/<[^>]*>/g, '').trim();
+        const items = recognizeItems(sourceText);
+        if (items.length > 0) {
+          const rect = dom.getBoundingClientRect();
+          setAutoPickItems(items);
+          setAutoPickPos({ x: rect.left + 20, y: rect.bottom + 4 });
+        }
+      }
+    };
+
+    dom.addEventListener('keydown', handleKeyDown);
+    dom.addEventListener('keyup', handleKeyUp);
+    return () => {
+      dom.removeEventListener('keydown', handleKeyDown);
+      dom.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [editor, segment]);
+
+  const handleAutoPickSelect = useCallback(
+    (value: string) => {
+      if (editor) {
+        editor.commands.insertContent(value);
+      }
+      setAutoPickItems([]);
+    },
+    [editor],
+  );
 
   // Handle external content insertion into TipTap
   useEffect(() => {
@@ -82,6 +131,14 @@ export function EditPanel({
           onEditorReady={setEditor}
         />
       </div>
+      {autoPickItems.length > 0 && (
+        <AutoPickMenu
+          items={autoPickItems}
+          position={autoPickPos}
+          onSelect={handleAutoPickSelect}
+          onClose={() => setAutoPickItems([])}
+        />
+      )}
     </div>
   );
 }
