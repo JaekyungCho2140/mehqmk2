@@ -154,12 +154,39 @@
   white-space: nowrap;
 }
 
+.result-item-color-bar {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
 .result-item-source {
   font-size: 13px;
   color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Diff Lamps */
+.diff-lamps {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.diff-lamp {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+
+.diff-lamp--active {
+  background: #f59e0b;
 }
 
 /* Compare Box */

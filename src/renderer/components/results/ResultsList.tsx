@@ -3,6 +3,7 @@ import { ResultItem } from './ResultItem';
 
 interface ResultsListProps {
   readonly matches: TmMatch[];
+  readonly currentSource: string;
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
   readonly onInsert: (index: number) => void;
@@ -10,6 +11,7 @@ interface ResultsListProps {
 
 export function ResultsList({
   matches,
+  currentSource,
   selectedIndex,
   onSelect,
   onInsert,
@@ -29,6 +31,7 @@ export function ResultsList({
           key={match.tu_id}
           index={index}
           match={match}
+          currentSource={currentSource}
           selected={index === selectedIndex}
           onSelect={() => onSelect(index)}
           onInsert={() => onInsert(index)}

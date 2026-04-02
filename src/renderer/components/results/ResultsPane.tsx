@@ -120,7 +120,8 @@ export function ResultsPane({
 
       <ResultsList
         matches={matches}
-        selectedIndex={selectedIndex}
+        currentSource={currentSource}
+        selectedIndex={effectiveIndex}
         onSelect={setSelectedIndex}
         onInsert={onInsert}
       />

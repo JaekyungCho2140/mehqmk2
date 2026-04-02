@@ -14,7 +14,10 @@ export function sortMatches(matches: TmMatch[]): TmMatch[] {
     if (b.match_rate !== a.match_rate) {
       return b.match_rate - a.match_rate;
     }
-    return ROLE_PRIORITY[a.tm_role] - ROLE_PRIORITY[b.tm_role];
+    const roleDiff = ROLE_PRIORITY[a.tm_role] - ROLE_PRIORITY[b.tm_role];
+    if (roleDiff !== 0) return roleDiff;
+    // 3순위: 수정일 최신순
+    return b.modified_at.localeCompare(a.modified_at);
   });
 }
 
