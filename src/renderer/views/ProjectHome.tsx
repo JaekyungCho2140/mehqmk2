@@ -18,12 +18,14 @@ interface ProjectHomeProps {
   readonly projectId: string;
   readonly onBack: () => void;
   readonly onOpenEditor?: (projectId: string, projectName: string) => void;
+  readonly onOpenTmEditor?: (tmId: string) => void;
 }
 
 export function ProjectHome({
   projectId,
   onBack,
   onOpenEditor,
+  onOpenTmEditor,
 }: ProjectHomeProps): React.ReactElement {
   const [project, setProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState('general');
@@ -78,6 +80,7 @@ export function ProjectHome({
             project={project}
             onOpenEditor={onOpenEditor ? () => onOpenEditor(project.id, project.name) : undefined}
             onImportDocument={handleImportDocument}
+            onOpenTmEditor={onOpenTmEditor}
           />
         )}
         {activeTab === 'reports' && <ReportsTab />}

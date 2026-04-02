@@ -6,6 +6,7 @@ import { Dashboard } from './views/Dashboard';
 import { NewProjectWizard } from './views/NewProjectWizard';
 import { ProjectHome } from './views/ProjectHome';
 import { TranslationEditor } from './views/TranslationEditor';
+import { TmEditor } from './views/TmEditor';
 import type { Project } from '../shared/types/project';
 import './styles/components.css';
 import './styles/wizard.css';
@@ -16,7 +17,8 @@ type AppView =
   | { type: 'dashboard' }
   | { type: 'new-project' }
   | { type: 'project-home'; projectId: string }
-  | { type: 'editor'; projectId: string; projectName: string };
+  | { type: 'editor'; projectId: string; projectName: string }
+  | { type: 'tm-editor'; tmId: string; projectId: string };
 
 export function App(): React.ReactElement {
   const { settings, loading: settingsLoading } = useSettings();
@@ -81,6 +83,15 @@ export function App(): React.ReactElement {
     );
   }
 
+  if (view.type === 'tm-editor') {
+    return (
+      <TmEditor
+        tmId={view.tmId}
+        onBack={() => setView({ type: 'project-home', projectId: view.projectId })}
+      />
+    );
+  }
+
   if (view.type === 'editor') {
     return (
       <TranslationEditor
@@ -97,6 +108,7 @@ export function App(): React.ReactElement {
         projectId={view.projectId}
         onBack={handleBackToDashboard}
         onOpenEditor={handleOpenEditor}
+        onOpenTmEditor={(tmId) => setView({ type: 'tm-editor', tmId, projectId: view.projectId })}
       />
     );
   }

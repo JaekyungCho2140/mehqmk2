@@ -61,4 +61,19 @@ export function registerTmIpc(db: Database.Database): void {
   ipcMain.handle(IPC_CHANNELS.TM_ADD_ENTRY, (_event, payload: AddTmEntryInput) => {
     tmRepo.addEntry(payload);
   });
+
+  ipcMain.handle(IPC_CHANNELS.TM_LIST_ENTRIES, (_event, payload: { tmId: string }) => {
+    return tmRepo.listEntries(payload.tmId);
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.TM_UPDATE_ENTRY,
+    (_event, payload: { id: string; source?: string; target?: string; flagged?: boolean }) => {
+      tmRepo.updateEntry(payload.id, payload);
+    },
+  );
+
+  ipcMain.handle(IPC_CHANNELS.TM_DELETE_ENTRY, (_event, payload: { id: string }) => {
+    tmRepo.deleteEntry(payload.id);
+  });
 }

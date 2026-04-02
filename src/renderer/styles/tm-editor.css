@@ -1,0 +1,62 @@
+/* TM Editor */
+.tm-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.tm-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-default);
+  min-height: 48px;
+}
+
+.tm-editor-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tm-editor-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tm-editor-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.tm-editor-grid {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Find & Replace bar */
+.tm-find-replace {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+}
+
+.tm-find-input {
+  width: 160px;
+  height: 28px;
+  font-size: var(--font-size-sm);
+}
+
+.tm-find-case {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}

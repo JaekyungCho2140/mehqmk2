@@ -3,7 +3,7 @@ import { IPC_CHANNELS } from '../shared/types/ipc';
 import type { SettingsKey, UserSettings } from '../shared/types/settings';
 import type { Project, CreateProjectInput } from '../shared/types/project';
 import type { Segment } from '../shared/types/segment';
-import type { TranslationMemory, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput } from '../shared/types/tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput } from '../shared/types/tm';
 
 const electronAPI = {
   platform: process.platform,
@@ -66,6 +66,12 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.TM_SEARCH, input),
     addEntry: (input: AddTmEntryInput): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.TM_ADD_ENTRY, input),
+    listEntries: (tmId: string): Promise<TranslationUnit[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_LIST_ENTRIES, { tmId }),
+    updateEntry: (id: string, fields: { source?: string; target?: string; flagged?: boolean }): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_UPDATE_ENTRY, { id, ...fields }),
+    deleteEntry: (id: string): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_DELETE_ENTRY, { id }),
   },
 };
 

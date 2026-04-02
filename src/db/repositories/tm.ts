@@ -1,5 +1,5 @@
 import type Database from 'better-sqlite3';
-import type { TranslationMemory, CreateTmInput, TmRole, AddTmEntryInput } from '../../shared/types/tm';
+import type { TranslationMemory, TranslationUnit, CreateTmInput, TmRole, AddTmEntryInput } from '../../shared/types/tm';
 import crypto from 'node:crypto';
 
 interface DbTmRow {
@@ -148,5 +148,76 @@ export class TmRepository {
          WHERE id = ?`,
       )
       .run(input.tmId, input.tmId);
+  }
+
+  listEntries(tmId: string): TranslationUnit[] {
+    const rows = this.db
+      .prepare('SELECT * FROM translation_units WHERE tm_id = ? ORDER BY modified_at DESC')
+      .all(tmId) as Array<Record<string, unknown>>;
+    return rows.map((row) => ({
+      id: row.id as string,
+      tm_id: row.tm_id as string,
+      source: row.source as string,
+      target: row.target as string,
+      prev_source: (row.prev_source as string) ?? null,
+      next_source: (row.next_source as string) ?? null,
+      context_id: (row.context_id as string) ?? null,
+      created_by: (row.created_by as string) ?? '',
+      created_at: row.created_at as string,
+      modified_by: (row.modified_by as string) ?? '',
+      modified_at: row.modified_at as string,
+      document_name: (row.document_name as string) ?? '',
+      project_name: (row.project_name as string) ?? '',
+      client: (row.client as string) ?? '',
+      domain: (row.domain as string) ?? '',
+      flagged: row.flagged === 1,
+    }));
+  }
+
+  updateEntry(id: string, fields: { source?: string; target?: string; flagged?: boolean }): void {
+    const updates: string[] = [];
+    const values: unknown[] = [];
+
+    if (fields.source !== undefined) {
+      updates.push('source = ?');
+      values.push(fields.source);
+    }
+    if (fields.target !== undefined) {
+      updates.push('target = ?');
+      values.push(fields.target);
+    }
+    if (fields.flagged !== undefined) {
+      updates.push('flagged = ?');
+      values.push(fields.flagged ? 1 : 0);
+    }
+
+    if (updates.length === 0) return;
+
+    updates.push("modified_at = datetime('now')");
+    values.push(id);
+
+    this.db
+      .prepare(`UPDATE translation_units SET ${updates.join(', ')} WHERE id = ?`)
+      .run(...values);
+  }
+
+  deleteEntry(id: string): void {
+    // Get tm_id before deleting for count update
+    const row = this.db
+      .prepare('SELECT tm_id FROM translation_units WHERE id = ?')
+      .get(id) as { tm_id: string } | undefined;
+
+    this.db.prepare('DELETE FROM translation_units WHERE id = ?').run(id);
+
+    if (row) {
+      this.db
+        .prepare(
+          `UPDATE translation_memories
+           SET entry_count = (SELECT COUNT(*) FROM translation_units WHERE tm_id = ?),
+               updated_at = datetime('now')
+           WHERE id = ?`,
+        )
+        .run(row.tm_id, row.tm_id);
+    }
   }
 }
