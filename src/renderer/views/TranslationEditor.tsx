@@ -8,6 +8,7 @@ import { FilterBar, type FilterState } from '../components/editor/FilterBar';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { ChangeStatusDialog } from '../components/editor/ChangeStatusDialog';
 import { ResultsPane } from '../components/results/ResultsPane';
+import { AutoLookupSettings } from '../components/AutoLookupSettings';
 import { useEditorNavigation } from '../hooks/useEditorNavigation';
 import { useConfirmation } from '../hooks/useConfirmation';
 import { useSegmentStatus, type ChangeStatusOptions } from '../hooks/useSegmentStatus';
@@ -112,6 +113,21 @@ export function TranslationEditor({
   const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [resultsPaneCollapsed, setResultsPaneCollapsed] = useState(false);
   const [pendingInsert, setPendingInsert] = useState<string | null>(null);
+  const [showAutoLookupSettings, setShowAutoLookupSettings] = useState(false);
+  const [autoScan, setAutoScan] = useState(true);
+  const [autoInsert, setAutoInsert] = useState(false);
+  const [autoInsertThreshold, setAutoInsertThreshold] = useState(85);
+  const [copySourceIfNoMatch, setCopySourceIfNoMatch] = useState(false);
+
+  // Load auto-lookup settings
+  useEffect(() => {
+    window.electronAPI.settings.getAll().then((s) => {
+      if (s.auto_scan !== undefined) setAutoScan(s.auto_scan as boolean);
+      if (s.auto_insert !== undefined) setAutoInsert(s.auto_insert as boolean);
+      if (s.auto_insert_threshold !== undefined) setAutoInsertThreshold(s.auto_insert_threshold as number);
+      if (s.copy_source_if_no_match !== undefined) setCopySourceIfNoMatch(s.copy_source_if_no_match as boolean);
+    });
+  }, []);
   const [filter, setFilter] = useState<FilterState>({
     sourceFilter: '',
     targetFilter: '',
@@ -183,10 +199,28 @@ export function TranslationEditor({
     onNavigate: setActiveSegmentId,
   });
 
+  const handleAutoInsert = useCallback(
+    (target: string, matchRate: number) => {
+      if (!activeSegmentId) return;
+      setPendingInsert(target);
+      setSegments((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeSegmentId) return s;
+          return { ...s, status: matchRate > 0 ? 'pre-translated' : 'not-started', matchRate: matchRate > 0 ? matchRate : null };
+        }),
+      );
+    },
+    [activeSegmentId],
+  );
+
   const tmIntegration = useTmIntegration({
     projectId,
     segments,
     activeSegmentId,
+    onAutoInsert: handleAutoInsert,
+    autoInsertEnabled: autoInsert,
+    autoInsertThreshold,
+    copySourceIfNoMatch,
   });
 
   const confirmation = useConfirmation({
@@ -278,6 +312,16 @@ export function TranslationEditor({
             ]}
           />
         </div>
+        <div className="editor-toolbar-right">
+          <button
+            className="back-btn"
+            onClick={() => setShowAutoLookupSettings(true)}
+            data-testid="auto-lookup-settings-btn"
+            title="Auto-Lookup Settings"
+          >
+            ⚙
+          </button>
+        </div>
       </div>
 
       <FilterBar onFilterChange={setFilter} />
@@ -316,6 +360,24 @@ export function TranslationEditor({
         <ChangeStatusDialog
           onApply={handleChangeStatusApply}
           onCancel={() => setShowChangeStatus(false)}
+        />
+      )}
+
+      {showAutoLookupSettings && (
+        <AutoLookupSettings
+          autoScan={autoScan}
+          autoInsert={autoInsert}
+          autoInsertThreshold={autoInsertThreshold}
+          copySourceIfNoMatch={copySourceIfNoMatch}
+          onSave={(s) => {
+            setAutoScan(s.auto_scan);
+            setAutoInsert(s.auto_insert);
+            setAutoInsertThreshold(s.auto_insert_threshold);
+            setCopySourceIfNoMatch(s.copy_source_if_no_match);
+            window.electronAPI.settings.setBulk(s);
+            setShowAutoLookupSettings(false);
+          }}
+          onCancel={() => setShowAutoLookupSettings(false)}
         />
       )}
     </div>

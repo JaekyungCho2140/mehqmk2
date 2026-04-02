@@ -6,6 +6,10 @@ interface UseTmIntegrationOptions {
   readonly projectId?: string;
   readonly segments: Segment[];
   readonly activeSegmentId: string | null;
+  readonly onAutoInsert?: (target: string, matchRate: number) => void;
+  readonly autoInsertEnabled?: boolean;
+  readonly autoInsertThreshold?: number;
+  readonly copySourceIfNoMatch?: boolean;
 }
 
 interface UseTmIntegrationResult {
@@ -24,10 +28,19 @@ export function useTmIntegration({
   projectId,
   segments,
   activeSegmentId,
+  onAutoInsert,
+  autoInsertEnabled = false,
+  autoInsertThreshold = 85,
+  copySourceIfNoMatch = false,
 }: UseTmIntegrationOptions): UseTmIntegrationResult {
   const [matches, setMatches] = useState<TmMatch[]>([]);
   const [workingTmId, setWorkingTmId] = useState<string | null>(null);
   const searchAbortRef = useRef(0);
+  const onAutoInsertRef = useRef(onAutoInsert);
+
+  useEffect(() => {
+    onAutoInsertRef.current = onAutoInsert;
+  });
 
   // Load project TMs to find the working TM
   useEffect(() => {
@@ -76,11 +89,21 @@ export function useTmIntegration({
       .then((results) => {
         if (searchAbortRef.current === searchId && !cancelled) {
           setMatches(results);
+
+          // Auto-insert logic
+          if (autoInsertEnabled && onAutoInsertRef.current && segment) {
+            const targetEmpty = !stripHtml(segment.target);
+            if (targetEmpty && results.length > 0 && results[0].match_rate >= autoInsertThreshold) {
+              onAutoInsertRef.current(results[0].target, results[0].match_rate);
+            } else if (targetEmpty && results.length === 0 && copySourceIfNoMatch) {
+              onAutoInsertRef.current(segment.source, 0);
+            }
+          }
         }
       });
 
     return () => { cancelled = true; };
-  }, [projectId, activeSegmentId, segments]);
+  }, [projectId, activeSegmentId, segments, autoInsertEnabled, autoInsertThreshold, copySourceIfNoMatch]);
 
   const bestMatchRate = matches.length > 0 ? matches[0].match_rate : null;
 
