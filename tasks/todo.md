@@ -150,6 +150,38 @@
 
 ---
 
-## Phase 6: Results & Lookup (다음)
-- Translation Results Pane, AutoPick, Concordance
-- 상세 계획은 Phase 5 완료 후 작성
+## Phase 6: Results & Lookup (현재)
+
+### Sprint 6-1: Translation Results Pane — 3단 레이아웃 ✅ QA PASS (R2, E2E 95)
+- [x] ResultsList + CompareBox + MetaInfo, 에디터 우측
+- [x] QA 검증
+
+### Sprint 6-2: 색상 코딩 + 매치율 단계 + 램프 + 정렬 ✅ QA PASS (E2E 99)
+- [x] 색상 7종, 매치율 6단계, 램프 8종, 정렬
+- [x] QA 검증
+
+### Sprint 6-3: Automatic Lookup + Auto-insert ✅ QA PASS (E2E 103)
+- [x] 자동 조회, Auto-insert, 설정
+- [x] QA 검증
+
+### Sprint 6-4: AutoPick ✅ QA PASS (E2E 107)
+- [x] Ctrl 단독 → 숫자/URL/대문자 인식 메뉴
+- [x] QA 검증
+
+### Sprint 6-5: Concordance ✅ QA PASS (E2E 112)
+- [x] Ctrl+K, KWIC/Source+Target, 와일드카드
+- [x] QA 검증
+
+### Sprint 6-6: Fragment Assembly + Results Settings ✅ QA PASS (E2E 115)
+- [x] Fragment 엔진, 설정 다이얼로그
+- [x] QA 검증
+
+### Sprint 6-7: E2E Results & Lookup 통합 테스트 ✅ QA PASS (E2E 116, 115 pass + 1 flaky)
+- [x] 14개 시나리오 전체 커버, Phase 6 신규 26개
+- [x] QA 검증
+
+---
+
+## Phase 7: Term Base (다음)
+- TB 매칭 + Import/Export
+- 상세 계획은 Phase 6 완료 후 작성
