@@ -2,10 +2,12 @@ import type Database from 'better-sqlite3';
 import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '../../shared/types/ipc';
 import { TmRepository } from '../../db/repositories/tm';
-import type { CreateTmInput, TmRole } from '../../shared/types/tm';
+import type { CreateTmInput, TmRole, TmSearchInput, AddTmEntryInput } from '../../shared/types/tm';
+import { TmMatchEngine } from '../tm/match-engine';
 
 export function registerTmIpc(db: Database.Database): void {
   const tmRepo = new TmRepository(db);
+  const matchEngine = new TmMatchEngine(db);
 
   ipcMain.handle(IPC_CHANNELS.TM_LIST, () => {
     return tmRepo.list();
@@ -46,4 +48,17 @@ export function registerTmIpc(db: Database.Database): void {
       return tmRepo.listByProject(payload.projectId);
     },
   );
+
+  ipcMain.handle(IPC_CHANNELS.TM_SEARCH, (_event, payload: TmSearchInput) => {
+    return matchEngine.search(payload.projectId, {
+      source: payload.source,
+      prevSource: payload.prevSource,
+      nextSource: payload.nextSource,
+      contextId: payload.contextId,
+    });
+  });
+
+  ipcMain.handle(IPC_CHANNELS.TM_ADD_ENTRY, (_event, payload: AddTmEntryInput) => {
+    tmRepo.addEntry(payload);
+  });
 }

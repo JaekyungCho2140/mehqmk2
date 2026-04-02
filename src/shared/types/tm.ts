@@ -47,3 +47,34 @@ export interface ProjectTmLink {
   readonly role: TmRole;
   readonly rank: number;
 }
+
+export interface TmMatch {
+  readonly tu_id: string;
+  readonly tm_name: string;
+  readonly tm_role: TmRole;
+  readonly source: string;
+  readonly target: string;
+  readonly match_rate: number;
+  readonly match_type: 'double-context' | 'context' | 'exact' | 'fuzzy';
+  readonly penalties: string[];
+  readonly created_by: string;
+  readonly modified_at: string;
+}
+
+export interface TmSearchInput {
+  readonly projectId: string;
+  readonly source: string;
+  readonly prevSource?: string;
+  readonly nextSource?: string;
+  readonly contextId?: string;
+}
+
+export interface AddTmEntryInput {
+  readonly tmId: string;
+  readonly source: string;
+  readonly target: string;
+  readonly prevSource?: string;
+  readonly nextSource?: string;
+  readonly contextId?: string;
+  readonly createdBy?: string;
+}

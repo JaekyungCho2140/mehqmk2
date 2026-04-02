@@ -1,7 +1,7 @@
 import type { SettingsKey, UserSettings } from './settings';
 import type { Project, CreateProjectInput } from './project';
 import type { Segment } from './segment';
-import type { TranslationMemory, CreateTmInput, TmRole } from './tm';
+import type { TranslationMemory, CreateTmInput, TmRole, TmMatch, TmSearchInput, AddTmEntryInput } from './tm';
 
 export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
@@ -28,6 +28,8 @@ export const IPC_CHANNELS = {
   PROJECT_TM_LINK: 'project-tm:link',
   PROJECT_TM_UNLINK: 'project-tm:unlink',
   PROJECT_TM_LIST: 'project-tm:list',
+  TM_SEARCH: 'tm:search',
+  TM_ADD_ENTRY: 'tm:add-entry',
 } as const;
 
 export interface IpcRequestMap {
@@ -56,6 +58,8 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.PROJECT_TM_LINK]: { projectId: string; tmId: string; role?: TmRole };
   [IPC_CHANNELS.PROJECT_TM_UNLINK]: { projectId: string; tmId: string };
   [IPC_CHANNELS.PROJECT_TM_LIST]: { projectId: string };
+  [IPC_CHANNELS.TM_SEARCH]: TmSearchInput;
+  [IPC_CHANNELS.TM_ADD_ENTRY]: AddTmEntryInput;
 }
 
 export interface IpcResponseMap {
@@ -82,6 +86,8 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.PROJECT_TM_LINK]: void;
   [IPC_CHANNELS.PROJECT_TM_UNLINK]: void;
   [IPC_CHANNELS.PROJECT_TM_LIST]: TranslationMemory[];
+  [IPC_CHANNELS.TM_SEARCH]: TmMatch[];
+  [IPC_CHANNELS.TM_ADD_ENTRY]: void;
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;

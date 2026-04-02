@@ -1,5 +1,5 @@
 import type Database from 'better-sqlite3';
-import type { TranslationMemory, CreateTmInput, TmRole } from '../../shared/types/tm';
+import type { TranslationMemory, CreateTmInput, TmRole, AddTmEntryInput } from '../../shared/types/tm';
 import crypto from 'node:crypto';
 
 interface DbTmRow {
@@ -116,5 +116,37 @@ export class TmRepository {
       ...rowToTm(row),
       role: row.project_role as TmRole,
     }));
+  }
+
+  addEntry(input: AddTmEntryInput): void {
+    const id = crypto.randomUUID();
+
+    this.db
+      .prepare(
+        `INSERT OR REPLACE INTO translation_units
+           (id, tm_id, source, target, prev_source, next_source, context_id, created_by, modified_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        id,
+        input.tmId,
+        input.source,
+        input.target,
+        input.prevSource ?? null,
+        input.nextSource ?? null,
+        input.contextId ?? null,
+        input.createdBy ?? '',
+        input.createdBy ?? '',
+      );
+
+    // Update entry_count
+    this.db
+      .prepare(
+        `UPDATE translation_memories
+         SET entry_count = (SELECT COUNT(*) FROM translation_units WHERE tm_id = ?),
+             updated_at = datetime('now')
+         WHERE id = ?`,
+      )
+      .run(input.tmId, input.tmId);
   }
 }
