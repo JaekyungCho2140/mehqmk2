@@ -3,6 +3,7 @@ import { IPC_CHANNELS } from '../shared/types/ipc';
 import type { SettingsKey, UserSettings } from '../shared/types/settings';
 import type { Project, CreateProjectInput } from '../shared/types/project';
 import type { Segment } from '../shared/types/segment';
+import type { TranslationMemory, CreateTmInput, TmRole } from '../shared/types/tm';
 
 const electronAPI = {
   platform: process.platform,
@@ -45,6 +46,22 @@ const electronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.SEGMENTS_UPDATE, { id, ...fields }),
     bulkUpdate: (segments: Array<{ id: string } & Record<string, unknown>>): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.SEGMENTS_BULK_UPDATE, { segments }),
+  },
+  tm: {
+    list: (): Promise<TranslationMemory[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_LIST),
+    get: (id: string): Promise<TranslationMemory | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_GET, { id }),
+    create: (input: CreateTmInput): Promise<TranslationMemory> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_CREATE, input),
+    delete: (id: string): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.TM_DELETE, { id }),
+    linkToProject: (projectId: string, tmId: string, role?: TmRole): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT_TM_LINK, { projectId, tmId, role }),
+    unlinkFromProject: (projectId: string, tmId: string): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT_TM_UNLINK, { projectId, tmId }),
+    listByProject: (projectId: string): Promise<TranslationMemory[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT_TM_LIST, { projectId }),
   },
 };
 

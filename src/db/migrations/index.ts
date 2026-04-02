@@ -2,6 +2,7 @@ import type Database from 'better-sqlite3';
 import { migration001Init } from './001-init';
 import { migration002Projects } from './002-projects';
 import { migration003Segments } from './003-segments';
+import { migration004Tm } from './004-tm';
 
 export interface Migration {
   readonly version: number;
@@ -13,6 +14,7 @@ const migrations: readonly Migration[] = [
   migration001Init,
   migration002Projects,
   migration003Segments,
+  migration004Tm,
 ];
 
 export function runMigrations(db: Database.Database): void {

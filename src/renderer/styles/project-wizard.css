@@ -240,3 +240,78 @@
   gap: var(--spacing-sm);
   align-items: center;
 }
+
+/* Wizard TM Step */
+.tm-step-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.tm-empty-state {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  border: 1px dashed var(--color-border-default);
+  border-radius: 8px;
+}
+
+.tm-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tm-select-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  transition: all 200ms ease;
+}
+
+.tm-select-item:hover {
+  border-color: var(--color-border-focus);
+}
+
+.tm-select-item--selected {
+  border-color: var(--color-accent-primary);
+  background: var(--color-bg-secondary);
+}
+
+.tm-select-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  flex: 1;
+}
+
+.tm-select-checkbox input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+.tm-select-name {
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.tm-select-langs {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-left: var(--spacing-sm);
+}
+
+.tm-role-select {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  cursor: pointer;
+}

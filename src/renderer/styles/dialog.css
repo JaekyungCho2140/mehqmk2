@@ -82,3 +82,40 @@
   border-radius: 2px;
   flex-shrink: 0;
 }
+
+/* TM Role options (CreateTmDialog) */
+.tm-role-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tm-role-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.tm-role-option:hover {
+  background: var(--color-bg-hover);
+}
+
+.tm-role-option input[type="radio"] {
+  accent-color: var(--color-accent);
+}
+
+.tm-role-label {
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  min-width: 80px;
+}
+
+.tm-role-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

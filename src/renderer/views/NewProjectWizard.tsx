@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from '../components/Button';
 import { TextInput } from '../components/TextInput';
 import { LanguageSelect } from '../components/LanguageSelect';
 import { ProjectDocuments } from './wizard/ProjectDocuments';
+import { CreateTmDialog } from '../components/CreateTmDialog';
 import type { FileEntry } from '../components/FileDropZone';
 import type { CreateProjectInput } from '../../shared/types/project';
+import type { TranslationMemory, TmRole } from '../../shared/types/tm';
 import '../styles/project-wizard.css';
 
 interface NewProjectWizardProps {
@@ -12,7 +14,12 @@ interface NewProjectWizardProps {
   readonly onCancel: () => void;
 }
 
-type Step = 'details' | 'documents';
+type Step = 'details' | 'documents' | 'tm';
+
+interface SelectedTm {
+  readonly tm: TranslationMemory;
+  readonly role: TmRole;
+}
 
 export function NewProjectWizard({
   onComplete,
@@ -28,6 +35,9 @@ export function NewProjectWizard({
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
   const [files, setFiles] = useState<FileEntry[]>([]);
+  const [availableTms, setAvailableTms] = useState<TranslationMemory[]>([]);
+  const [selectedTms, setSelectedTms] = useState<SelectedTm[]>([]);
+  const [showCreateTm, setShowCreateTm] = useState(false);
 
   const [nameError, setNameError] = useState('');
   const [sourceLangError, setSourceLangError] = useState('');
@@ -36,6 +46,10 @@ export function NewProjectWizard({
   const [saving, setSaving] = useState(false);
 
   const canProceed = name.trim() && sourceLang && targetLang;
+
+  useEffect(() => {
+    window.electronAPI.tm.list().then(setAvailableTms).catch(() => {});
+  }, []);
 
   const validateDetails = useCallback((): boolean => {
     let valid = true;
@@ -64,12 +78,49 @@ export function NewProjectWizard({
   }, [name, sourceLang, targetLang]);
 
   const handleNext = useCallback(() => {
-    if (validateDetails()) setStep('documents');
-  }, [validateDetails]);
+    if (step === 'details' && validateDetails()) {
+      setStep('documents');
+    } else if (step === 'documents') {
+      setStep('tm');
+    }
+  }, [step, validateDetails]);
 
   const handleBack = useCallback(() => {
-    setStep('details');
+    if (step === 'tm') {
+      setStep('documents');
+    } else {
+      setStep('details');
+    }
+  }, [step]);
+
+  const toggleTmSelection = useCallback(
+    (tm: TranslationMemory) => {
+      setSelectedTms((prev) => {
+        const exists = prev.find((s) => s.tm.id === tm.id);
+        if (exists) {
+          return prev.filter((s) => s.tm.id !== tm.id);
+        }
+        return [...prev, { tm, role: tm.role }];
+      });
+    },
+    [],
+  );
+
+  const updateTmRole = useCallback((tmId: string, role: TmRole) => {
+    setSelectedTms((prev) =>
+      prev.map((s) => (s.tm.id === tmId ? { ...s, role } : s)),
+    );
   }, []);
+
+  const handleCreateTm = useCallback(
+    async (input: { name: string; source_lang: string; target_lang: string; description: string; role: TmRole }) => {
+      const created = await window.electronAPI.tm.create(input);
+      setAvailableTms((prev) => [created, ...prev]);
+      setSelectedTms((prev) => [...prev, { tm: created, role: input.role }]);
+      setShowCreateTm(false);
+    },
+    [],
+  );
 
   const handleFinish = useCallback(async () => {
     setSaving(true);
@@ -95,6 +146,11 @@ export function NewProjectWizard({
         await window.electronAPI.document.import(project.id, file.path);
       }
 
+      // 선택된 TM 연결
+      for (const { tm, role: tmRole } of selectedTms) {
+        await window.electronAPI.tm.linkToProject(project.id, tm.id, tmRole);
+      }
+
       onComplete();
     } catch (err) {
       const message = err instanceof Error ? err.message : '프로젝트 생성에 실패했습니다';
@@ -116,22 +172,29 @@ export function NewProjectWizard({
     description,
     deadline,
     files,
+    selectedTms,
     onComplete,
   ]);
 
   const todayStr = new Date().toISOString().split('T')[0];
 
+  const stepLabels: Record<Step, string> = {
+    details: 'Details',
+    documents: 'Documents',
+    tm: 'Translation Memory',
+  };
+
   return (
     <div className="new-project-wizard" data-testid="new-project-wizard">
       <div className="new-project-header">
-        <h2>New Project — {step === 'details' ? 'Details' : 'Documents'}</h2>
+        <h2>New Project — {stepLabels[step]}</h2>
         <Button variant="ghost" onClick={onCancel} data-testid="new-project-cancel-btn">
           Cancel
         </Button>
       </div>
 
       <div className="new-project-form-area">
-        {step === 'details' ? (
+        {step === 'details' && (
           <div className="new-project-form">
             {formError && <div className="form-error-banner">{formError}</div>}
 
@@ -217,31 +280,115 @@ export function NewProjectWizard({
               />
             </div>
           </div>
-        ) : (
+        )}
+        {step === 'documents' && (
           <div className="new-project-form">
             <ProjectDocuments files={files} onFilesChange={setFiles} />
+          </div>
+        )}
+        {step === 'tm' && (
+          <div className="new-project-form" data-testid="wizard-tm-step">
+            <p className="tm-step-description">
+              프로젝트에 사용할 Translation Memory를 선택하세요. (선택 사항)
+            </p>
+
+            <Button
+              variant="ghost"
+              onClick={() => setShowCreateTm(true)}
+              data-testid="wizard-create-tm-btn"
+            >
+              + Create New TM
+            </Button>
+
+            {availableTms.length === 0 ? (
+              <div className="tm-empty-state" data-testid="wizard-tm-empty">
+                등록된 TM이 없습니다. 위 버튼으로 새 TM을 생성하세요.
+              </div>
+            ) : (
+              <div className="tm-select-list" data-testid="wizard-tm-list">
+                {availableTms.map((tm) => {
+                  const selected = selectedTms.find((s) => s.tm.id === tm.id);
+                  return (
+                    <div
+                      key={tm.id}
+                      className={`tm-select-item ${selected ? 'tm-select-item--selected' : ''}`}
+                      data-testid={`wizard-tm-item-${tm.id}`}
+                    >
+                      <label className="tm-select-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={!!selected}
+                          onChange={() => toggleTmSelection(tm)}
+                        />
+                        <span className="tm-select-name">{tm.name}</span>
+                        <span className="tm-select-langs">
+                          {tm.source_lang} → {tm.target_lang}
+                        </span>
+                      </label>
+                      {selected && (
+                        <select
+                          className="tm-role-select"
+                          value={selected.role}
+                          onChange={(e) => updateTmRole(tm.id, e.target.value as TmRole)}
+                          data-testid={`wizard-tm-role-${tm.id}`}
+                        >
+                          <option value="working">Working</option>
+                          <option value="master">Master</option>
+                          <option value="reference">Reference</option>
+                        </select>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <div className="new-project-footer">
-        {step === 'documents' && (
+        {step !== 'details' && (
           <Button variant="ghost" onClick={handleBack} data-testid="new-project-back-btn">
             Back
           </Button>
         )}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--spacing-sm)' }}>
-          {step === 'details' ? (
+          {step === 'details' && (
             <Button onClick={handleNext} disabled={!canProceed} data-testid="new-project-next-btn">
               Next
             </Button>
-          ) : (
+          )}
+          {step === 'documents' && (
+            <>
+              <Button onClick={handleNext} data-testid="new-project-next-btn">
+                Next
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleFinish}
+                disabled={saving}
+                data-testid="new-project-finish-btn"
+              >
+                {saving ? 'Creating...' : 'Finish'}
+              </Button>
+            </>
+          )}
+          {step === 'tm' && (
             <Button onClick={handleFinish} disabled={saving} data-testid="new-project-finish-btn">
               {saving ? 'Creating...' : 'Finish'}
             </Button>
           )}
         </div>
       </div>
+
+      {showCreateTm && (
+        <CreateTmDialog
+          defaultSourceLang={sourceLang}
+          defaultTargetLang={targetLang}
+          onCreate={handleCreateTm}
+          onCancel={() => setShowCreateTm(false)}
+        />
+      )}
     </div>
   );
 }

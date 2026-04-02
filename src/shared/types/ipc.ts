@@ -1,6 +1,7 @@
 import type { SettingsKey, UserSettings } from './settings';
 import type { Project, CreateProjectInput } from './project';
 import type { Segment } from './segment';
+import type { TranslationMemory, CreateTmInput, TmRole } from './tm';
 
 export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
@@ -20,6 +21,13 @@ export const IPC_CHANNELS = {
   SEGMENTS_UPDATE: 'segments:update',
   SEGMENTS_BULK_UPDATE: 'segments:bulk-update',
   DOCUMENT_EXPORT: 'document:export',
+  TM_LIST: 'tm:list',
+  TM_GET: 'tm:get',
+  TM_CREATE: 'tm:create',
+  TM_DELETE: 'tm:delete',
+  PROJECT_TM_LINK: 'project-tm:link',
+  PROJECT_TM_UNLINK: 'project-tm:unlink',
+  PROJECT_TM_LIST: 'project-tm:list',
 } as const;
 
 export interface IpcRequestMap {
@@ -41,6 +49,13 @@ export interface IpcRequestMap {
   [IPC_CHANNELS.SEGMENTS_BULK_UPDATE]: {
     segments: Array<{ id: string } & Record<string, unknown>>;
   };
+  [IPC_CHANNELS.TM_LIST]: void;
+  [IPC_CHANNELS.TM_GET]: { id: string };
+  [IPC_CHANNELS.TM_CREATE]: CreateTmInput;
+  [IPC_CHANNELS.TM_DELETE]: { id: string };
+  [IPC_CHANNELS.PROJECT_TM_LINK]: { projectId: string; tmId: string; role?: TmRole };
+  [IPC_CHANNELS.PROJECT_TM_UNLINK]: { projectId: string; tmId: string };
+  [IPC_CHANNELS.PROJECT_TM_LIST]: { projectId: string };
 }
 
 export interface IpcResponseMap {
@@ -60,6 +75,13 @@ export interface IpcResponseMap {
   [IPC_CHANNELS.SEGMENTS_LIST]: Segment[];
   [IPC_CHANNELS.SEGMENTS_UPDATE]: Segment;
   [IPC_CHANNELS.SEGMENTS_BULK_UPDATE]: void;
+  [IPC_CHANNELS.TM_LIST]: TranslationMemory[];
+  [IPC_CHANNELS.TM_GET]: TranslationMemory | null;
+  [IPC_CHANNELS.TM_CREATE]: TranslationMemory;
+  [IPC_CHANNELS.TM_DELETE]: void;
+  [IPC_CHANNELS.PROJECT_TM_LINK]: void;
+  [IPC_CHANNELS.PROJECT_TM_UNLINK]: void;
+  [IPC_CHANNELS.PROJECT_TM_LIST]: TranslationMemory[];
 }
 
 export type IpcChannels = typeof IPC_CHANNELS;
