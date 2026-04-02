@@ -47,6 +47,9 @@ export async function createProject(
     await page.fill(SEL.NEW_PROJECT_CLIENT_INPUT, options.client);
   }
 
+  // Step 1(Details) → Next → Step 2(Documents) → Finish
+  await page.click('[data-testid="new-project-next-btn"]');
+  await page.waitForSelector('[data-testid="file-drop-zone"]', { timeout: 5000 });
   await page.click(SEL.NEW_PROJECT_FINISH_BTN);
   await page.waitForSelector(SEL.DASHBOARD_CONTAINER, { timeout: 5000 });
 }
@@ -69,4 +72,30 @@ export async function openEditor(page: Page): Promise<void> {
 
   // TipTap 에디터 준비 대기
   await page.waitForSelector(`${SEL.TIPTAP_EDITOR} .tiptap`, { timeout: 5000 });
+}
+
+/**
+ * 프로젝트 이름으로 DB에서 ID를 조회한 후, 문서를 Import (파일 다이얼로그 우회)
+ */
+export async function importDocumentViaIpc(
+  electronApp: import('@playwright/test').ElectronApplication,
+  projectName: string,
+  filePath: string,
+): Promise<void> {
+  const page = await electronApp.firstWindow();
+  const escapedPath = filePath.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+  // 프로젝트 목록에서 이름으로 ID 조회
+  const projectId = await page.evaluate(async (name) => {
+    const projects = await window.electronAPI.project.list();
+    const project = projects.find((p) => p.name === name);
+    return project?.id ?? null;
+  }, projectName);
+
+  if (!projectId) throw new Error(`프로젝트 '${projectName}'을 찾을 수 없습니다`);
+
+  await page.evaluate(([pid, fp]) => window.electronAPI.document.import(pid, fp), [
+    projectId,
+    escapedPath,
+  ] as const);
 }

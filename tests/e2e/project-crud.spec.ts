@@ -47,9 +47,12 @@ test('프로젝트 생성 — 중복 이름 에러', async () => {
   await ctx.page.click(SEL.NEW_PROJECT_TARGET_LANG);
   await ctx.page.click(`${SEL.NEW_PROJECT_TARGET_LANG_DROPDOWN} .lang-select-option >> text=en`);
 
+  // Next → Documents → Finish
+  await ctx.page.click('[data-testid="new-project-next-btn"]');
+  await ctx.page.waitForSelector('[data-testid="file-drop-zone"]', { timeout: 5000 });
   await ctx.page.click(SEL.NEW_PROJECT_FINISH_BTN);
 
-  // 에러 메시지 표시, New Project Wizard에 머뭄
+  // 에러 메시지 표시, Wizard의 Details 단계로 돌아감
   await expect(ctx.page.locator('.text-input-error')).toBeVisible();
   await expect(ctx.page.locator(SEL.NEW_PROJECT_WIZARD)).toBeVisible();
 });
